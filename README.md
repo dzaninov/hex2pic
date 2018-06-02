@@ -1,2 +1,1 @@
-# hex2pic
-PIC boot loader
+# Work in progress, do not use.
