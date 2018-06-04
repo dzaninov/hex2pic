@@ -28,7 +28,7 @@
 
     variable SHOW_PROMPT = 0, CKSUM_MATCH = 0, IGNORE_WRITE = 0, WORD_WRITE = 0
     variable CR_END = 0, LF_END = 0, WRITE_PROTECT = 0, EEPROM_ADRH = 0, NOT_SUPPORTED = 0
-    variable SCOPE = 0, NO_INLINE = 0
+    variable SCOPE = 0
 
 ; comment out a variable to disable feature
 
@@ -42,7 +42,6 @@
     variable EEPROM_ADRH    = __EEPROM_START >> 8   ; enable EEPROM support
     variable NOT_SUPPORTED  = 'U'                   ; show and fail on unsupported records
     variable SCOPE          = 1                     ; isolate sent data for easier capture
-    variable NO_INLINE      = 1                     ; set when using a debugger
 
 ; these can be changed but not disabled
 
@@ -146,49 +145,31 @@ cmpc    macro   state                   ; compare C with state
 ; Data section
 
 bank0_data      udata
-record_buffer   res     MAX_RECORD          ; filled in uart_read_hex_data
-record_type     res     1                   ; set in read_record
-checksum        res     1                   ; updated in uart_get_hex
-bytes_to_read   res     1                   ; used by uart_read_hex_data
-delay_counter   res     1                   ; short_delay
-inner_delay     res     1                   ; inner delay counter
-outer_delay     res     1                   ; outer delay counter
+record_buffer   res         MAX_RECORD      ; filled in uart_read_hex_data
+record_type     res         1               ; set in read_record
+checksum        res         1               ; updated in uart_get_hex
+bytes_to_read   res         1               ; used by uart_read_hex_data
+delay_counter   res         1               ; short_delay
+inner_delay     res         1               ; inner delay counter
+outer_delay     res         1               ; outer delay counter
 
 ; locals
-search_byte     res     1                   ; uart_find
-high_nibble     res     1                   ; uart_get_hex
-byte_to_send    res     1                   ; uart_send
-counter         res     1                   ; main
+counter         res         1               ; main
+search_byte     res         1               ; uart_find
+high_nibble     res         1               ; uart_get_hex
+byte_to_send    res         1               ; uart_send
+hex_number      res         1               ; uart_send_hex
 
 shared_data     udata_shr
-low_address     res     1                   ; low part of write address
-high_address    res     1                   ; high part of write address
-words_to_write  res     1                   ; used by write_data
+low_address     res         1               ; low part of write address
+high_address    res         1               ; high part of write address
+words_to_write  res         1               ; used by write_data
 
 ;===============================================================================
 ; Inline code
 
-#if NO_INLINE == 1
-inline_start macro name
-inline_code code
-name:                                   ; define a label
-        endm
-#else
-name    macro                           ; define a macro
-#endif
-
-#if NO_INLINE == 1
-    #define inline_end return
-#else
-    #define inline_end endm
-#endif
-    
 inline  macro   function                ; call inline function
-#if NO_INLINE == 1
-        call    function
-#else
         function
-#endif
         endm
 
 #define throw   goto                    ; throw exception
@@ -282,6 +263,7 @@ uart_read_hex_data macro
 get_more_data:
         call    uart_get_hex            ; get data byte
         movwf   INDF                    ; *FSR = W
+        call    uart_send_hex           ; uart_send_hex (W)
         incf    FSR, f                  ; FSR++
         decfsz  bytes_to_read, f        ; --bytes_to_read == 0 ?
         goto    get_more_data           ; bytes_to_read != 0
@@ -292,7 +274,7 @@ get_more_data:
 ; throws read_record_ERROR
 ;
 
- inline_start read_record
+read_record macro
         movlw   ':'
         inline  uart_find               ; find start of the record
 
@@ -322,8 +304,8 @@ get_more_data:
 
 read_record_SUCCESS:
         debug   CKSUM_MATCH
- inline_end
-
+        endm
+        
 ;
 ; Write one word
 ; switches to bank 3
@@ -515,7 +497,7 @@ main    code    0
         debug   SHOW_PROMPT
 
 next_record:
-        call    read_record
+        inline  read_record
         send    XOFF
 
 #if NOT_SUPPORTED != 0                  ; check for unsupported records ?
@@ -572,6 +554,22 @@ uart_get_hex
         addwf   checksum, f             ; checksum += W
         return
  
+;
+; Send W to UART as hex
+; locals: hex_number
+;
+
+uart_send_hex
+        movwf   hex_number
+        swapf   hex_number, W           ; swap high and low nibble
+        call    number_to_hex           ; W = number_to_hex (hex_number)
+        call    uart_send               ; send high nibble to UART
+
+        movf    hex_number, W           ; W = hex_number
+        call    number_to_hex           ; W = number_to_hex (hex_number)
+        call    uart_send               ; send low nibble to UART
+        return
+
 ;
 ; Send W to UART
 ; locals: byte_to_send
@@ -647,6 +645,18 @@ hex_to_number
         cmpc    NO_OVERFLOW
         addlw   7                       ; number: add 7 + 10
         addlw   10                      ; letter: add 10
+        return
+
+;
+; Convert lower nibble of hex_number to uppercase hex
+;
+
+number_to_hex
+        andlw   0x0F                    ; clear high nibble
+        sublw   10                      ; W -= 10
+        cmpc    OVERFLOW
+        addlw   'A' - '0'               ; letter
+        addlw   10 + '0'                ; number
         return
 
 ;===============================================================================
