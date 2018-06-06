@@ -8,7 +8,7 @@
 ;===============================================================================
 ; mpasm / gpasm compatibility
     
-#ifndef __EEPROM_START
+#ifndef __GPUTILS_VERSION_MAJOR
     variable BANKING_ERROR  = 302       ; mpasm
     variable __EEPROM_START = 0x2100
 #else
