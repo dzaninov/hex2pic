@@ -89,7 +89,7 @@ repeat  macro                           ; repeat until done
         endm
 
 movff   macro   source, target          ; assign source to target file
-        movf    source, w               ; W = source
+        movfw   source                  ; W = source
         movwf   target                  ; target = W
         endm
 
@@ -103,42 +103,26 @@ shr     macro   file, destination       ; shift right
         rrf     file, destination       ; rotate right
         endm
 
-cmp     macro   file, literal           ; compare file with literal
+skpeq   macro   file, literal           ; compare file with literal
 #if literal == 0
-        movf    file, f                 ; zero check
+        tstf    file                    ; zero check
 #else
-        movf    file, w                 ; W = file
+        movfw   file                    ; W = file
         sublw   literal                 ; W = literal - W
 #endif
-        cmpz    ZERO_RESULT             ; Z = 1 ?
+        skpz                            ; Z = 1 ?
         endm
 
-cmplte  macro   file, literal           ; file <= literal ?
-        movf    file, w                 ; W = file
+skplte  macro   file, literal           ; file <= literal ?
+        movfw   file                    ; W = file
         sublw   literal                 ; W = literal - W
-        cmpc    NO_OVERFLOW             ; C = 0 ?
+        skpnc                           ; C = 0 ?
         endm
 
-cmpgt   macro   file, literal           ; file > literal ?
-        movf    file, w                 ; W = file
+skpgt   macro   file, literal           ; file > literal ?
+        movfw   file                    ; W = file
         sublw   literal                 ; W = literal - W
-        cmpc    OVERFLOW                ; C = 1 ?
-        endm
-
-cmpz    macro   state                   ; compare Z with state
-#if state == 0
-        btfsc   STATUS, Z
-#else
-        btfss   STATUS, Z
-#endif
-        endm
-
-cmpc    macro   state                   ; compare C with state
-#if state == 0
-        btfsc   STATUS, C
-#else
-        btfss   STATUS, C
-#endif
+        skpc                            ; C = 1 ?
         endm
 
 ;===============================================================================
@@ -248,7 +232,7 @@ get_next:
         call    uart_get                ; W = UART
 
         xorwf   search_byte, f          ; search_byte ^= W
-        cmpz    ZERO_RESULT
+        skpz
         goto    get_next                ; no match -> get next
         endm
     
@@ -264,6 +248,7 @@ get_more_data:
         call    uart_get_hex            ; get data byte
         movwf   INDF                    ; *FSR = W
         call    uart_send_hex           ; uart_send_hex (W)
+        send    ':'
         incf    FSR, f                  ; FSR++
         decfsz  bytes_to_read, f        ; --bytes_to_read == 0 ?
         goto    get_more_data           ; bytes_to_read != 0
@@ -296,7 +281,7 @@ read_record macro
         inline  uart_read_hex_data      ; read whole record to record_buffer
 
         call    uart_get_hex            ; get record checksum
-        cmpz    NO_ZERO_RESULT          ; checksum != 0 is wrong checksum
+        skpnz                           ; checksum != 0 is wrong checksum
         goto    read_record_SUCCESS
 
         movlw   CKSUM_ERROR
@@ -314,7 +299,7 @@ read_record_SUCCESS:
 
 write_word macro
 #ifdef EEPROM_ADRH
-        cmp     high_address, EEPROM_ADRH ; EPPROM address ?
+        skpeq   high_address, EEPROM_ADRH ; EPPROM address ?
         goto    not_eeprom
         bcf     EECON1, EEPGD           ; setup writing to EEPROM
         goto    load_data
@@ -356,7 +341,7 @@ write_next_word:
         movff   high_address, EEADRH    ; EEADRH = high_address
 
         incf    low_address, f          ; low_address++
-        cmpc    NO_OVERFLOW             ; no low_address overflow ?
+        skpnc                           ; no low_address overflow ?
         incf    high_address, f         ; low_address overflow
 
         movff   INDF, EEDATA            ; low byte = *FSR
@@ -387,11 +372,11 @@ write_next_word:
 
 process_data_record macro
 #ifdef  WRITE_PROTECT
-        movf    high_address, f         ; high_address = high_address
-        cmpz    ZERO_RESULT             ; high_address == 0 ?
+        tstf    high_address
+        skpz                            ; high_address == 0 ?
         goto    write_record            ; high_address != 0
 
-        cmpgt   low_address, WRITE_PROTECT
+        skpgt   low_address, WRITE_PROTECT
         goto    ignore_write            ; ignore writes to protected area
 #endif
 
@@ -422,27 +407,27 @@ process_data_record_SUCCESS:
  variable NO_ADDR_SUM       = 0xFA              ; checksum for RECORD_HIGH_ADDR with no address
 
 process_record_safe macro
-        cmp     record_type, RECORD_DATA
+        skpeq   record_type, RECORD_DATA
         goto    not_data_record
 
-        cmplte  bytes_to_read, MAX_RECORD       ; bytes_to_read <= MAX_RECORD ?
+        skplte  bytes_to_read, MAX_RECORD       ; bytes_to_read <= MAX_RECORD ?
         goto    not_supported
 
         try     process_data_record
         goto    process_record_MORE_DATA
 
 not_data_record:
-        cmp     record_type, RECORD_EOF
+        skpeq   record_type, RECORD_EOF
         goto    not_eof_record
 
         movlw   LAST_RECORD
         throw   process_record_EOF
 
 not_eof_record:
-        cmp     record_type, RECORD_HIGH_ADDR
+        skpeq   record_type, RECORD_HIGH_ADDR
         goto    not_supported                   ; no known record types match
 
-        cmp     checksum, NO_ADDR_SUM           ; process high address record
+        skpeq   checksum, NO_ADDR_SUM           ; process high address record
         goto    not_supported                   ; high address is set to non-zero
 
         goto    process_record_MORE_DATA        ; high address is set to zero, ignore
@@ -494,7 +479,14 @@ process_record_MORE_DATA:
 
 main    code    0
         inline  pic_init
-        debug   SHOW_PROMPT
+;       debug   SHOW_PROMPT
+        
+loop:
+        movfw   counter
+        call    number_to_hex
+        call    uart_send
+        decf    counter, f
+        goto    loop
 
 next_record:
         inline  read_record
@@ -565,7 +557,7 @@ uart_send_hex
         call    number_to_hex           ; W = number_to_hex (hex_number)
         call    uart_send               ; send high nibble to UART
 
-        movf    hex_number, W           ; W = hex_number
+        movfw   hex_number              ; W = hex_number
         call    number_to_hex           ; W = number_to_hex (hex_number)
         call    uart_send               ; send low nibble to UART
         return
@@ -614,7 +606,7 @@ uart_get
         goto    uart_get
 
 get_data:
-        movf    RCREG, w                ; return data to caller
+        movfw   RCREG                   ; return data to caller
         return
 
 ;
@@ -626,14 +618,14 @@ uart_clear_errors
         goto    no_overrun
 
         bcf     RCSTA, CREN             ; disable receiver
-        movf    RCREG, w                ; flush FIFO
-        movf    RCREG, w
-        movf    RCREG, w
+        movfw   RCREG                   ; flush FIFO
+        movfw   RCREG
+        movfw   RCREG
         bsf     RCSTA, CREN             ; enable receiver
 
 no_overrun:
         btfsc   RCSTA, FERR             ; no framing error ?
-        movf    RCREG, w                ; clear framing error
+        movfw   RCREG                   ; clear framing error
         return
 
 ;
@@ -642,7 +634,7 @@ no_overrun:
 
 hex_to_number
         sublw   'A'                     ; W -= 'A'
-        cmpc    NO_OVERFLOW
+        skpnc
         addlw   7                       ; number: add 7 + 10
         addlw   10                      ; letter: add 10
         return
@@ -653,10 +645,10 @@ hex_to_number
 
 number_to_hex
         andlw   0x0F                    ; clear high nibble
-        sublw   10                      ; W -= 10
-        cmpc    OVERFLOW
+        sublw   10                      ; W = 10 - W
+        skpc
         addlw   'A' - '0'               ; letter
-        addlw   10 + '0'                ; number
+        addlw   '0'                     ; number
         return
 
 ;===============================================================================
