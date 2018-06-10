@@ -51,14 +51,6 @@
     variable MAX_RECORD     = 0x10                  ; max record size
 
 ;===============================================================================
-; Defines
-
-    variable ZERO_RESULT    = 1         ; Z = 1
-    variable NO_ZERO_RESULT = 0         ; Z = 0
-    variable OVERFLOW       = 1         ; C = 1
-    variable NO_OVERFLOW    = 0         ; C = 0
-
-;===============================================================================
 ; Macros
 
 bank0   macro                           ; select bank 0
@@ -232,8 +224,7 @@ get_next:
         call    uart_get                ; W = UART
 
         xorwf   search_byte, f          ; search_byte ^= W
-        skpz
-        goto    get_next                ; no match -> get next
+        bnz     get_next                ; no match -> get next
         endm
     
 ;
@@ -281,8 +272,7 @@ read_record macro
         inline  uart_read_hex_data      ; read whole record to record_buffer
 
         call    uart_get_hex            ; get record checksum
-        skpnz                           ; checksum != 0 is wrong checksum
-        goto    read_record_SUCCESS
+        bz      read_record_SUCCESS     ; checksum == 0 is good checksum
 
         movlw   CKSUM_ERROR
         throw   read_record_ERROR
@@ -373,9 +363,8 @@ write_next_word:
 process_data_record macro
 #ifdef  WRITE_PROTECT
         tstf    high_address
-        skpz                            ; high_address == 0 ?
-        goto    write_record            ; high_address != 0
-
+        bz      write_record            ; high_address == 0
+        
         skpgt   low_address, WRITE_PROTECT
         goto    ignore_write            ; ignore writes to protected area
 #endif
