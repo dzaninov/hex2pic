@@ -1,0 +1,9 @@
+#ifdef __16F887
+include _16F887_g.lkr
+#fi
+
+#ifdef ____16F18313
+include _16F18313_g.lkr
+#fi
+
+SECTION     NAME=bank0_data   RAM=gpr0
