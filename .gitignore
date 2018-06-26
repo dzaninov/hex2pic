@@ -3,3 +3,7 @@ debug
 dist
 nbproject
 Makefile
+*.cod
+*.hex
+*.lst
+*.o
