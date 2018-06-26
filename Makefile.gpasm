@@ -1,8 +1,8 @@
-hex2pic.hex: hex2pic.o
-	gplink -o hex2pic.hex hex2pic.o
+hex2pic.hex: hex2pic.o delay.o hexfile.o interrupt.o number.o uart.o
+	gplink -o $@ hex2pic.o delay.o hexfile.o interrupt.o number.o uart.o
 
-hex2pic.o: hex2pic.asm
-	gpasm -p 16f887 -c -o hex2pic.o hex2pic.asm
+%.o: %.asm
+	gpasm -p 16f887 -c -o $@ $<
 
 clean:
 	rm -f *.cod *.hex *.lst *.o
