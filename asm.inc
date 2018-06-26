@@ -1,25 +1,22 @@
-#ifndef ASSEMBLER_INC
-#define ASSEMBLER_INC
+#ifndef ASM_INC
+#define ASM_INC
 
     radix dec
     list b=4,n=0,st=OFF                 ; b: tab spaces
                                         ; n: lines per page
                                         ; st: symbol table dump
-
-#ifndef __GPUTILS_VERSION_MAJOR
+#ifdef __GPUTILS_VERSION_MAJOR
     variable BANKING_ERROR = 1206       ; gpasm
 #else
     variable BANKING_ERROR = 302        ; mpasm
 #endif
 
-mkexport macro source                   ; define export symbols
-#ifdef source
-#define export  global
-#else
-#define export  extern
-#endif
-        endm
+#include "pic.inc"
 
+reboot  macro                           ; reboot pic
+        goto    0
+        endm
+        
 repeat  macro                           ; repeat until done
         goto    $ - 1
         endm
@@ -68,15 +65,21 @@ skpgt   macro   file, literal           ; file > literal ?
 ;===============================================================================
 ; Bank switching
 
-    variable ACTIVE_BANK = -1 
+ variable ACTIVE_BANK = -1 
     
-mybank  macro   bank                    ; assume we are in this file bank
-        variable ACTIVE_BANK = bank
+unbank  macro                           ; forget current bank
+        variable ACTIVE_BANK = -1
+        errorlevel +BANKING_ERROR
+        endm
+        
+mybank  macro   file                    ; assume we are in this file bank
+        variable ACTIVE_BANK = file / BANK_SIZE
+        errorlevel -BANKING_ERROR
         endm
         
 forcsel macro   file                    ; switch file bank unconditionally
         banksel file
-        mybank  file / BANK_SIZE
+        mybank  file
         endm
         
 select  macro   file                    ; switch file bank only if needed
@@ -86,11 +89,20 @@ select  macro   file                    ; switch file bank only if needed
 #endif
         endm
         
+relsel  macro   file                    ; switch bank for relocatable
+        banksel file
+        unbank
+        endm
+        
 ;===============================================================================
 ; FSR high bits switching
         
-    variable ACTIVE_FSRH = -1 
+ variable ACTIVE_FSRH = -1 
 
+unfsrh  macro                           ; forget current bank
+        variable ACTIVE_FSRH = -1
+        endm
+        
 myfsrh  macro   fsrh                    ; assume FSRH is set to this
         variable ACTIVE_FSRH = fsrh
         endm
@@ -113,7 +125,7 @@ iselect macro   file                    ; set FSRH only if needed
         endm
 
 ;===============================================================================
-; Inline and exceptions
+; Calls and exceptions
 
 inline  macro   function                ; call inline function
         function
@@ -127,6 +139,31 @@ try     macro   function                ; call function that can throw
 
 catch   macro   exception               ; catch exception
 exception:
+        endm
+
+routine macro   name                    ; define a global routine
+name
+        global  name
+        unbank
+        unfsrh
+        endm
+        
+lclcall macro   routine                 ; call routine in the same module
+        call    routine
+        unbank
+        endm
+        
+farcall macro   routine                 ; call routine in another module
+#ifndef NO_PAGESEL
+        pagesel routine
+#endif
+        call    routine
+        unbank
+#ifndef NO_PAGESEL
+        local   local_label
+        pagesel local_label
+local_label:
+#endif
         endm
 
 #endif

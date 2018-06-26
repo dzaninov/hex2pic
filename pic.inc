@@ -1,7 +1,7 @@
 #ifndef PIC_INC
 #define PIC_INC
 
-#include "util.inc"
+#include "number.inc"
 
 ;===============================================================================
 ; PIC compatibility
@@ -24,16 +24,21 @@
 #endif
     #define HAVE_SHADOW
     #define HAVE_FSRH
+    #define NO_PAGESEL
     #define FSR         FSR0L
     #define FSRH        FSR0H
     #define INDF        INDF0
-    #define BAUDCTL     BAUD1CON
-    #define SPBRG       SP1BRGL
-    #define SPBRGH      SP1BRGH
-    #define TXSTA       TX1STA
-    #define RCSTA       RC1STA
-    #define TXREG       TX1REG
-    #define RCREG       RC1REG
+;   #define BAUDCTL     BAUD1CON
+;   #define SPBRG       SP1BRGL
+;   #define SPBRGH      SP1BRGH
+;   #define TXSTA       TX1STA
+;   #define RCSTA       RC1STA
+;   #define TXREG       TX1REG
+;   #define RCREG       RC1REG
+    #define EADDR       NVMADRL
+    #define EADDRH      NVMADRH
+    #define EEDATA      NVMDATL
+;   #define EEDATH      NVMDATH
 #endif
 
 #ifndef MAX_INT_CLOCK
@@ -46,6 +51,8 @@
 ; Set internal oscilator frequency and use it
 
 set_intosc macro
+        local   not_stable
+        
 #if CLOCK == 0
         error "Unknown clock frequency"
 #endif
