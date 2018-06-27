@@ -1,5 +1,5 @@
 hex2pic.hex: hex2pic.o delay.o hexfile.o interrupt.o number.o uart.o
-	gplink -o $@ hex2pic.o delay.o hexfile.o interrupt.o number.o uart.o
+	gplink -m -o $@ hex2pic.o delay.o hexfile.o interrupt.o number.o uart.o
 
 %.o: %.asm
 	gpasm -p 16f887 -c -o $@ $<
