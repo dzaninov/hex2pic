@@ -1,14 +1,5 @@
 #include "asm.inc"
     
-;===============================================================================
-; Device configuration
-
- __config _CONFIG1, _INTOSCIO & _WDT_OFF & _PWRTE_OFF & _MCLRE_OFF & _CP_OFF & _CPD_OFF & _BOR_OFF & _IESO_OFF & _FCMEN_OFF & _LVP_OFF & _DEBUG_OFF
- __config _CONFIG2, _BOR40V & _WRT_OFF 
-
-;===============================================================================
-; Configurable features
-
  variable INT_CLOCK = 0, CLOCK = 0, SHOW_PROMPT = 0, CKSUM_MATCH = 0
  variable IGNORE_WRITE = 0, WORD_WRITE = 0, CR_END = 0, LF_END = 0
  variable WRITE_PROTECT = 0, EEPROM_ADRH = 0, NOT_SUPPORTED = 0

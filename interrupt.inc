@@ -16,6 +16,7 @@
 ; Reference: DS31008A, Example 8-1
 
 context_save macro
+#ifndef HAVE_SHADOW
         movwf   WREG_SHAD               ; Copy W to a Temporary Register
                                         ; regardless of current bank
         swapf   STATUS, w               ; Swap STATUS nibbles and place
@@ -27,12 +28,14 @@ context_save macro
         movff   PCLATH, PCLATH_SHAD
 #endif
         movff   FSR, FSR_SHAD
+#endif
         endm
 
 ; Restore registers
 ; Reference: DS31008A, Example 8-1
 
 context_restore macro
+#ifndef HAVE_SHADOW
         relsel  FSR
         movff   FSR_SHAD, FSR
 #ifndef NO_PAGESEL
@@ -46,6 +49,7 @@ context_restore macro
                                     ; value to WREG_SHAD
         swapf   WREG_SHAD, w        ; Swap WREG_SHAD to W to restore original
                                     ; W value without affecting STATUS 
+#endif
         endm
 
 ; Disable interrupts

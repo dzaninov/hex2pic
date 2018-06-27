@@ -7,10 +7,11 @@
 ; throws write_word_ERROR
 
 write_word macro
-        local   not_eeprom
         local   load_data
         local   write_word_SUCCESS
-        
+
+#ifdef __16F887
+        local   not_eeprom
         relsel  high_address
         skpeq   high_address, EEPROM_ADRH ; EPPROM address ?
         goto    not_eeprom
@@ -22,6 +23,7 @@ write_word macro
 not_eeprom:
         forcsel EECON1
         bsf     EECON1, EEPGD           ; setup writing to program memory
+#endif
 
 load_data:
         mybank  EECON1

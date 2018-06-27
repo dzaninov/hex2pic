@@ -4,6 +4,7 @@
 ; Set internal oscilator frequency and use it
 
 set_intosc macro
+#ifdef __16F887
         local   not_stable
       
 #if CLOCK == 0
@@ -44,6 +45,7 @@ not_stable:
         btfss   OSCCON, HTS             ; high frequency clock stable ?
 #endif
         goto    not_stable
+#endif        
         endm
-        
+
 #endif
