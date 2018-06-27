@@ -1,7 +1,7 @@
 #ifndef FLASH_INC
 #define FLASH_INC
 
-#include "hexfile.inc"
+#include "asm.inc"
 
 ; Write one word
 ; throws write_word_ERROR
@@ -51,8 +51,8 @@ write_word_SUCCESS:
 write_data macro
         local   write_next_word
         
-        relsel  record_buffer
-        movlf   record_buffer, FSR      ; FSR = record_buffer
+        bankisel record_buffer
+        rmovlf  record_buffer, FSR      ; FSR = record_buffer
 
 write_next_word:
 ;       relsel  low_address             ; assumed

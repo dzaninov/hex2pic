@@ -22,8 +22,7 @@ uart_read_hex_data macro
         local   get_more_data
         
         bankisel record_buffer
-        movlw   record_buffer
-        movwf   FSR                     ; FSR = record_buffer
+        rmovlf  record_buffer, FSR      ; FSR = record_buffer
 
 get_more_data:
         farcall uart_get_hex            ; get data byte
