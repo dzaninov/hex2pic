@@ -48,41 +48,4 @@
     variable __EEPROM_ADRH  = __EEPROM_START >> 8
     variable BANK_SIZE      = 0x80
 
-; Set internal oscilator frequency and use it
-
-set_intosc macro
-        local   not_stable
-        
-#if CLOCK == 0
-        error "Unknown clock frequency"
-#endif
-        select  OSCCON
-#if CLOCK == 8000000
-        movlf   B'01110001', OSCCON
-#elif CLOCK == 4000000
-        movlf   B'01100001', OSCCON
-#elif CLOCK == 2000000
-        movlf   B'01010001', OSCCON
-#elif CLOCK == 1000000
-        movlf   B'01000001', OSCCON
-#elif CLOCK == 500000
-        movlf   B'00110001', OSCCON
-#elif CLOCK == 250000
-        movlf   B'00100001', OSCCON
-#elif CLOCK == 250000
-        movlf   B'00010001', OSCCON
-#elif CLOCK == 31000
-#define LFOSC
-        movlf   B'00000001', OSCCON
-#endif
-
-not_stable:
-#ifdef LFOSC
-        btfss   OSCCON, LTS             ; low frequency clock stable ?
-#else
-        btfss   OSCCON, HTS             ; high frequency clock stable ?
-#endif
-        goto    not_stable
-        endm
-        
 #endif

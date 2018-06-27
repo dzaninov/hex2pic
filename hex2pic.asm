@@ -37,6 +37,7 @@
 ; Library includes
 
 #include "interrupt.inc"
+#include "clock.inc"
 #include "uart.inc"
 #include "hexfile.inc"
 
@@ -59,7 +60,7 @@ counter     res     1                   ; main local
         org 4                           ; Interrupt service request
         inline  disable_int
         inline  context_save
-        farcall  uart_get
+        farcall uart_get
         inline  context_restore
         retfie                          ; enables interrupts
 

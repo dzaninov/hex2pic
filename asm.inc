@@ -26,12 +26,16 @@ movff   macro   source, target          ; assign source to target file
         movwf   target                  ; target = W
         endm
 
+rmovlf  macro   literal, file           ; assign relocatable literal to file
+        movlw   literal                 ; w = literal
+        movwf   file                    ; file = W
+        endm
+
 movlf   macro   literal, file           ; assign literal to file
 #if literal == 0
         clrf    file                    ; file = 0
 #else
-        movlw   literal                 ; w = literal
-        movwf   file                    ; file = W
+        rmovlf  literal, file
 #endif
         endm
 
@@ -107,7 +111,7 @@ myfsrh  macro   fsrh                    ; assume FSRH is set to this
         variable ACTIVE_FSRH = fsrh
         endm
         
-forcisel macro file                     ; set FSRH unconditionally
+forcisel macro  file                    ; set FSRH unconditionally
         local   NEW_FSRH = file >> 8       
 #ifdef HAVE_FSRH
         movlf   NEW_FSRH, FSRH
@@ -118,7 +122,7 @@ forcisel macro file                     ; set FSRH unconditionally
         endm
         
 iselect macro   file                    ; set FSRH only if needed
-        local NEW_FSRH = file >> 8        
+        local   NEW_FSRH = file >> 8        
 #if NEW_FSRH != ACTIVE_FSRH
         forcisel file
 #endif
