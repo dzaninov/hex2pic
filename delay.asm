@@ -17,7 +17,7 @@ delay_counter   res         1           ; short_delay parameter
 ; Arguments: inner_delay, outer_delay
 
  routine long_delay
- ;      relsel  delay_counter           ; assumed
+ ;      rselect delay_counter           ; assumed
         movff   inner_delay, delay_counter
         inline  short_delay
         decfsz  outer_delay, f

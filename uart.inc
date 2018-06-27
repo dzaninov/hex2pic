@@ -68,12 +68,12 @@ debug   macro   letter
 uart_find macro
         local   get_next
         
-        relsel  search_byte
+        rselect search_byte
 get_next:
         movwf   search_byte             ; search_byte = W
         farcall uart_get                ; W = UART
 
-        relsel  search_byte
+        rselect search_byte
         xorwf   search_byte, f          ; search_byte ^= W
         bnz     get_next                ; no match -> get next
         endm

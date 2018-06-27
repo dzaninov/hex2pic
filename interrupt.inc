@@ -22,7 +22,7 @@ context_save macro
         swapf   STATUS, w               ; Swap STATUS nibbles and place
                                         ; into W register
         mybank  0                       ; We are now in Bank0
-        relsel  STATUS_SHAD
+        rselect STATUS_SHAD
         movwf   STATUS_SHAD             ; Save STATUS to a Temporary register
 #ifndef NO_PAGESEL
         movff   PCLATH, PCLATH_SHAD
@@ -36,7 +36,7 @@ context_save macro
 
 context_restore macro
 #ifndef HAVE_SHADOW
-        relsel  FSR
+        rselect FSR_SHAD
         movff   FSR_SHAD, FSR
 #ifndef NO_PAGESEL
         movff   PCLATH_SHAD, PCLATH
@@ -64,4 +64,17 @@ int_enabled:
         goto    int_enabled
         endm
 
+; start interrupt processing
+
+int_start macro
+        inline  disable_int
+        inline  context_save
+        endm
+
+; end interrupt processing
+
+int_end macro
+        inline  context_restore
+        endm
+        
 #endif

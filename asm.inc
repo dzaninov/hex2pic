@@ -13,10 +13,9 @@
 
 #include "pic.inc"
 
-reboot  macro                           ; reboot pic
-        goto    0
-        endm
-        
+;===============================================================================
+; New instructions
+    
 repeat  macro                           ; repeat until done
         goto    $ - 1
         endm
@@ -42,6 +41,19 @@ movlf   macro   literal, file           ; assign literal to file
 shr     macro   file, destination       ; shift right
         bcf     STATUS, C               ; clear carry
         rrf     file, destination       ; rotate right
+        endm
+
+shl     macro   file, destination       ; shift left
+        bcf     STATUS, C               ; clear carry
+        rlf     file, destination       ; rotate left
+        endm
+
+letz    macro   state                   ; set Z to state
+#if state == 0
+        clrz
+#else
+        setz
+#endif
         endm
 
 skpeq   macro   file, literal           ; compare file with literal
@@ -81,7 +93,7 @@ mybank  macro   file                    ; assume we are in this file bank
         errorlevel -BANKING_ERROR
         endm
         
-forcsel macro   file                    ; switch file bank unconditionally
+fselect macro   file                    ; switch file bank unconditionally
         banksel file
         mybank  file
         endm
@@ -89,11 +101,11 @@ forcsel macro   file                    ; switch file bank unconditionally
 select  macro   file                    ; switch file bank only if needed
         local NEW_BANK = file / BANK_SIZE        
 #if NEW_BANK != ACTIVE_BANK
-        forcsel file
+        fselect file
 #endif
         endm
         
-relsel  macro   file                    ; switch bank for relocatable
+rselect macro   file                    ; switch bank for relocatable
         banksel file
         unbank
         endm
@@ -101,31 +113,56 @@ relsel  macro   file                    ; switch bank for relocatable
 ;===============================================================================
 ; FSR high bits switching
         
- variable ACTIVE_FSRH = -1 
+ variable ACTIVE_BANKI = -1 
 
-unfsrh  macro                           ; forget current bank
-        variable ACTIVE_FSRH = -1
+unbanki macro                           ; forget current index bank
+        variable ACTIVE_BANKI = -1
         endm
         
-myfsrh  macro   fsrh                    ; assume FSRH is set to this
-        variable ACTIVE_FSRH = fsrh
+mybanki macro   banki                   ; assume index bank is set to this
+        variable ACTIVE_BANKI = banki
         endm
         
-forcisel macro  file                    ; set FSRH unconditionally
-        local   NEW_FSRH = file >> 8       
+fselecti macro  file                    ; set index bank unconditionally
+        local   NEW_BANKI = file >> 8       
 #ifdef HAVE_FSRH
-        movlf   NEW_FSRH, FSRH
+        movlf   NEW_BANKI, FSRH
 #else
         bankisel file
 #endif
-        myfsrh  NEW_FSRH
+        mybanki NEW_BANKI
         endm
         
-iselect macro   file                    ; set FSRH only if needed
-        local   NEW_FSRH = file >> 8        
-#if NEW_FSRH != ACTIVE_FSRH
-        forcisel file
+selecti macro   file                    ; set index bank only if needed
+        local   NEW_BANKI = file >> 8        
+#if NEW_BANKI != ACTIVE_BANKI
+        fselecti file
 #endif
+        endm
+
+;===============================================================================
+; Page switching
+
+setpage macro   label                   ; set code page to access label
+#ifndef NO_PAGESEL
+#if label == 0
+        clrf    PCLATH
+#else
+        pagesel label
+#endif
+#endif
+        endm
+
+setrpage macro  label                   ; set code page for relocatable label
+#ifndef NO_PAGESEL
+        pagesel label
+#endif
+        endm
+    
+unpage  macro                           ; set code page to local
+        local   local_label
+        setrpage local_label
+local_label:
         endm
 
 ;===============================================================================
@@ -149,7 +186,7 @@ routine macro   name                    ; define a global routine
 name
         global  name
         unbank
-        unfsrh
+        unbanki
         endm
         
 lclcall macro   routine                 ; call routine in the same module
@@ -158,16 +195,20 @@ lclcall macro   routine                 ; call routine in the same module
         endm
         
 farcall macro   routine                 ; call routine in another module
-#ifndef NO_PAGESEL
-        pagesel routine
-#endif
+        setrpage routine
         call    routine
         unbank
-#ifndef NO_PAGESEL
-        local   local_label
-        pagesel local_label
-local_label:
-#endif
+        unpage
+        endm
+
+retz    macro   state                   ; set Z to state and return
+        letz    state
+        return
+        endm
+
+reboot  macro                           ; reboot pic
+        setpage 0
+        goto    0
         endm
 
 #endif

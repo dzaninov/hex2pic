@@ -12,7 +12,7 @@ write_word macro
 
 #ifdef __16F887
         local   not_eeprom
-        relsel  high_address
+        rselect high_address
         skpeq   high_address, EEPROM_ADRH ; EPPROM address ?
         goto    not_eeprom
         
@@ -21,7 +21,7 @@ write_word macro
         goto    load_data
 
 not_eeprom:
-        forcsel EECON1
+        fselect EECON1
         bsf     EECON1, EEPGD           ; setup writing to program memory
 #endif
 
@@ -57,17 +57,17 @@ write_data macro
         rmovlf  record_buffer, FSR      ; FSR = record_buffer
 
 write_next_word:
-;       relsel  low_address             ; assumed
+;       rselect low_address             ; assumed
         movfw   low_address
         select  EEADR
         movwf   EEADR                   ; EEADR = low_address
 
-;       relsel  high_address            ; assumed
+;       rselect high_address            ; assumed
         movfw   high_address
         select  EEADRH
         movwf   EEADRH                  ; EEADRH = high_address
         
-        relsel  low_address
+        rselect low_address
         incf    low_address, f          ; low_address++
         skpnc                           ; no low_address overflow ?
         incf    high_address, f         ; low_address overflow
@@ -83,7 +83,7 @@ write_next_word:
         try     write_word
 
         debug   WORD_WRITE
-        relsel  words_to_write
+        rselect words_to_write
         decfsz  words_to_write, f       ; --words_to_write == 0 ?
         goto    write_next_word         ; words_to_write != 0
 

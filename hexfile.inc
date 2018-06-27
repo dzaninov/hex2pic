@@ -28,7 +28,7 @@ get_more_data:
         farcall uart_get_hex            ; get data byte
         movwf   INDF                    ; *FSR = W
         incf    FSR, f                  ; FSR++
-        relsel  bytes_to_read
+        rselect bytes_to_read
         decfsz  bytes_to_read, f        ; --bytes_to_read == 0 ?
         goto    get_more_data           ; bytes_to_read != 0
         endm
@@ -43,23 +43,23 @@ read_record macro
         inline  uart_find               ; find start of the record
 
         farcall uart_get_hex            ; get number of bytes in a record
-        relsel  checksum
+        rselect checksum
         movwf   checksum                ; init checksum to record size
-        relsel  bytes_to_read
+        rselect bytes_to_read
         movwf   bytes_to_read
         movwf   words_to_write
         shr     words_to_write, f       ; bytes to words
 
         farcall uart_get_hex            ; get target high byte
-        relsel  high_address
+        rselect high_address
         movwf   high_address
 
         farcall uart_get_hex            ; get target low byte
-        relsel  low_address
+        rselect low_address
         movwf   low_address
 
         farcall uart_get_hex            ; get record type
-        relsel  record_type
+        rselect record_type
         movwf   record_type
 
         inline  uart_read_hex_data      ; read whole record to record_buffer
@@ -92,7 +92,7 @@ process_data_record macro
 #if WRITE_PROTECT != 0
         local   ignore_write
         
-        relsel  high_address
+        rselect high_address
         tstf    high_address
         bz      write_record            ; high_address == 0
         
@@ -127,7 +127,7 @@ process_record macro
         local   not_supported
         local   process_record_MORE_DATA
         
-        relsel  record_type
+        rselect record_type
         skpeq   record_type, RECORD_DATA
         goto    not_data_record
 
@@ -148,7 +148,7 @@ not_eof_record:
         skpeq   record_type, RECORD_HIGH_ADDR
         goto    not_supported              ; no known record types match
 
-        relsel  checksum
+        rselect checksum
         skpeq   checksum, NO_ADDR_SUM      ; process high address record
         goto    not_supported              ; high address is set to non-zero
 

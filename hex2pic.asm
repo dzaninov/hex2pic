@@ -39,25 +39,29 @@
 counter     res     1                   ; main local
          
 ;===============================================================================
-; Code section
-     
- code                                   ; power on reset
+; Power on reset and reboot
+
+ code                                   
         org 0
-#ifndef NO_PAGESEL
-        clrf    PCLATH
-#endif
+        setpage 0
         goto    main
         
-        org 4                           ; Interrupt service request
-        inline  disable_int
-        inline  context_save
+;===============================================================================
+; Interrupt service request
+        
+        org 4
+        inline  int_start
+        
         farcall uart_get
-        inline  context_restore
-        retfie                          ; enables interrupts
+        
+        inline  int_end
+        retfie
 
+;===============================================================================
 ; Read hex file from UART and write it
 
 main:
+        unbank
         inline  set_intosc
         inline  init_uart
         debug   SHOW_PROMPT

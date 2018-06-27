@@ -24,7 +24,7 @@ checksum        res         1               ; updated in uart_get_hex
 
         lclcall uart_get                ; W = UART
         farcall hex_to_number           ; W = hex_to_number (W)
-        relsel  high_nibble
+        rselect high_nibble
         movwf   high_nibble             ; high_nibble = W
         swapf   high_nibble, f          ; high_nibble <<= 4
 
@@ -32,7 +32,7 @@ checksum        res         1               ; updated in uart_get_hex
 
         lclcall uart_get                ; W = UART
         farcall hex_to_number           ; W = hex_to_number (W)
-        relsel  high_nibble
+        rselect high_nibble
         iorwf   high_nibble, w          ; W |= high_nibble
 
         addwf   checksum, f             ; checksum += W
@@ -42,13 +42,13 @@ checksum        res         1               ; updated in uart_get_hex
 ; locals: hex_number
 
  routine uart_send_hex
-        relsel  hex_number
+        rselect hex_number
         movwf   hex_number
         swapf   hex_number, W           ; swap high and low nibble
         farcall number_to_hex           ; W = number_to_hex (hex_number)
         lclcall uart_send               ; send high nibble to UART
 
-        relsel  hex_number
+        rselect hex_number
         movfw   hex_number              ; W = hex_number
         farcall number_to_hex           ; W = number_to_hex (hex_number)
         lclcall uart_send               ; send low nibble to UART

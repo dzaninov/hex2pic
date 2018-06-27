@@ -11,7 +11,7 @@
 ; Short delay
 
 short_delay macro
-;       relsel  delay_counter       ; assumed
+;       rselect delay_counter       ; assumed
         decfsz  delay_counter, f
         repeat
         endm
