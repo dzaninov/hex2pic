@@ -1,9 +1,10 @@
 build
 debug
 dist
-nbproject
 Makefile
+nbproject
 *.cod
 *.hex
 *.lst
+*.map
 *.o
