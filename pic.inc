@@ -6,39 +6,52 @@
 ;===============================================================================
 ; PIC compatibility
 ; Shared: PCLATH, STATUS, FSR, INDF, INTCON
-; __EEPROM_START is builtin on gpasm
 
+#ifdef __16F88
+    #include "p16f88.inc"
+    #define __16F88X
+    variable BAUD_DIVIDER = 16
+    #define NO_BRG16
+#endif
+    
 #ifdef __16F887
     #include "p16f887.inc"
+    #define __16F88X
+    variable BAUD_DIVIDER = 64
+#endif
+
+#ifdef __16F88X
     variable MAX_INT_CLOCK = 8 * MHZ
 #ifndef __EEPROM_START
     variable __EEPROM_START = 0x2100
 #endif
 #endif
-    
+
 #ifdef __16F18313
     #include "p16f18313.inc"
+    #define __16F18XXX
+    #define ONE_PAGE
+#endif
+    
+#ifdef __16F18346
+    #include "p16f18346.inc"
+    #define __16F18XXX
+#endif
+
+#ifdef __16F18XXX
     variable MAX_INT_CLOCK = 32 * MHZ
+    variable BAUD_DIVIDER = 64
 #ifndef __EEPROM_START
     variable __EEPROM_START = 0xF000
 #endif
     #define HAVE_SHADOW
     #define HAVE_FSRH
-    #define NO_PAGESEL
     #define FSR         FSR0L
     #define FSRH        FSR0H
     #define INDF        INDF0
-;   #define BAUDCTL     BAUD1CON
-;   #define SPBRG       SP1BRGL
-;   #define SPBRGH      SP1BRGH
-;   #define TXSTA       TX1STA
-;   #define RCSTA       RC1STA
-;   #define TXREG       TX1REG
-;   #define RCREG       RC1REG
     #define EADDR       NVMADRL
     #define EADDRH      NVMADRH
     #define EEDATA      NVMDATL
-;   #define EEDATH      NVMDATH
 #endif
 
 #ifndef MAX_INT_CLOCK

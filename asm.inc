@@ -144,7 +144,7 @@ selecti macro   file                    ; set index bank only if needed
 ; Page switching
 
 setpage macro   label                   ; set code page to access label
-#ifndef NO_PAGESEL
+#ifndef ONE_PAGE
 #if label == 0
         clrf    PCLATH
 #else
@@ -154,7 +154,7 @@ setpage macro   label                   ; set code page to access label
         endm
 
 setrpage macro  label                   ; set code page for relocatable label
-#ifndef NO_PAGESEL
+#ifndef ONE_PAGE
         pagesel label
 #endif
         endm

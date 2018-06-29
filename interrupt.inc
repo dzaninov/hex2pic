@@ -24,7 +24,7 @@ context_save macro
         mybank  0                       ; We are now in Bank0
         rselect STATUS_SHAD
         movwf   STATUS_SHAD             ; Save STATUS to a Temporary register
-#ifndef NO_PAGESEL
+#ifndef ONE_PAGE
         movff   PCLATH, PCLATH_SHAD
 #endif
         movff   FSR, FSR_SHAD
@@ -38,7 +38,7 @@ context_restore macro
 #ifndef HAVE_SHADOW
         rselect FSR_SHAD
         movff   FSR_SHAD, FSR
-#ifndef NO_PAGESEL
+#ifndef ONE_PAGE
         movff   PCLATH_SHAD, PCLATH
 #endif
         swapf   STATUS_SHAD, w      ; Swap original STATUS register value

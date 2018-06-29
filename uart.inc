@@ -21,15 +21,25 @@
 ; Setup UART
 
 init_uart macro
+        local   BRG = ((CLOCK / BAUD_RATE) / BAUD_DIVIDER) - 1
+#if BRG > 0xFFFF
+        error "BRG overflow, over 16-bit"
+#endif
+        
+#ifdef NO_BRG16
+#if BRG > 0xFF
+        error "BRG overflow, over 8-bit"
+#endif
+#else
         select  BAUDCTL
         bsf     BAUDCTL, BRG16
-       
-        local   BRG = ((CLOCK / BAUD_RATE) / 64) - 1
+        
         local   BRGH = BRG / 0x100
-        local   BRGL = BRG % 0x100
-
-        select  SPBRG
+        select  SPBRGH
         movlf   BRGH, SPBRGH
+#endif
+        local   BRGL = BRG % 0x100
+        select  SPBRG
         movlf   BRGL, SPBRG
         
         select  TXSTA
