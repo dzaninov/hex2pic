@@ -10,21 +10,21 @@
 #ifdef __16F88
     #include "p16f88.inc"
     #define __16F88X
-    variable BAUD_DIVIDER = 16
+    #define BAUD_DIVIDER    16
     #define NO_BRG16
 #endif
     
 #ifdef __16F887
     #include "p16f887.inc"
     #define __16F88X
-    variable BAUD_DIVIDER = 64
+    #define BAUD_DIVIDER    64
 #endif
 
 #ifdef __16F88X
-    variable MAX_INT_CLOCK = 8 * MHZ
-#ifndef __EEPROM_START
-    variable __EEPROM_START = 0x2100
-#endif
+    #define MAX_INT_CLOCK   (MHZ (8))
+    #ifndef __EEPROM_START
+        #define __EEPROM_START  0x2100
+    #endif
 #endif
 
 #ifdef __16F18313
@@ -39,11 +39,11 @@
 #endif
 
 #ifdef __16F18XXX
-    variable MAX_INT_CLOCK = 32 * MHZ
-    variable BAUD_DIVIDER = 64
-#ifndef __EEPROM_START
-    variable __EEPROM_START = 0xF000
-#endif
+    #define MAX_INT_CLOCK   (MHZ (32))
+    #define BAUD_DIVIDER    64
+    #ifndef __EEPROM_START
+        #define __EEPROM_START  0xF000
+    #endif
     #define HAVE_SHADOW
     #define HAVE_FSRH
     #define FSR         FSR0L
@@ -58,7 +58,7 @@
     error "Unknown processor"
 #endif
 
-    variable __EEPROM_ADRH  = __EEPROM_START >> 8
-    variable BANK_SIZE      = 0x80
+#define __EEPROM_ADRH   (__EEPROM_START >> 8)
+#define BANK_SIZE       0x80
 
 #endif

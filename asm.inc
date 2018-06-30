@@ -6,9 +6,9 @@
                                         ; n: lines per page
                                         ; st: symbol table dump
 #ifdef __GPUTILS_VERSION_MAJOR
-    variable BANKING_ERROR = 1206       ; gpasm
+    #define BANKING_ERROR   1206        ; gpasm
 #else
-    variable BANKING_ERROR = 302        ; mpasm
+    #define BANKING_ERROR   302         ; mpasm
 #endif
 
 #include "pic.inc"

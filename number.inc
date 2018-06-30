@@ -6,7 +6,11 @@
     extern number_to_hex                ; W = number_to_hex (W)
 #endif
 
-    variable kHZ = 1000
-    variable MHZ = 1000 * kHZ
-
+#define MAX_BYTE        0xFF
+#define MAX_WORD        0xFFFF
+#define LOW_BYTE(x)     ((x) & 0xFF)
+#define HIGH_BYTE(x)    ((x) >> 8)
+#define kHZ(x)          ((x) * 1000)
+#define MHZ(x)          (kHZ ((x) * 1000))
+    
 #endif

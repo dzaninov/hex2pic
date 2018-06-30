@@ -14,7 +14,7 @@
     extern words_to_write
 #endif
 
- variable MAX_RECORD = 16               ; max hex data record size
+#define MAX_RECORD  16                  ; max hex data record size
 
 ; Read bytes_to_read bytes of data from queue to record_buffer
 ; and update checksum
@@ -87,8 +87,8 @@ process_data_record macro
         tstf    high_address
         bz      write_record            ; high_address == 0
         
-        variable PROT_HIGH = (APP_START - 1) / 0x100
-        variable PROT_LOW = (APP_START - 1) % 0x100
+        local   PROT_HIGH = HIGH_BYTE (APP_START - 1)
+        local   PROT_LOW = LOW_BYTE (APP_START - 1)
  
         skpgt   high_address, PROT_HIGH
         goto    ignore_write            ; ignore writes to boot loader
@@ -109,10 +109,10 @@ process_data_record_SUCCESS:
 ; Process one hex file record
 ; throws process_record_EOF and write_word_ERROR
 
- variable RECORD_DATA       = 0         ; data record
- variable RECORD_EOF        = 1         ; end of file record
- variable RECORD_HIGH_ADDR  = 4         ; upper 16-bits of 32-bit address
- variable NO_ADDR_SUM       = 0xFA      ; no address RECORD_HIGH_ADDR checksum
+#define RECORD_DATA         0           ; data record
+#define RECORD_EOF          1           ; end of file record
+#define RECORD_HIGH_ADDR    4           ; upper 16-bits of 32-bit address
+#define NO_ADDR_SUM         0xFA        ; no address RECORD_HIGH_ADDR checksum
 
 process_record macro
         local   not_data_record

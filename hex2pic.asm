@@ -21,7 +21,7 @@
 
 main:
         unbank
-        inline  set_intosc
+        inline  set_clock
         inline  boot_loader
         reboot
         

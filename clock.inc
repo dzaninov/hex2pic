@@ -3,7 +3,7 @@
 
 ; Set internal oscilator frequency and use it
 
-set_intosc macro
+set_clock macro
 #ifdef __16F887
         local   not_stable
       

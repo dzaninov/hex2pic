@@ -15,7 +15,7 @@
     extern checksum
 #endif
 
- variable MAX_QUEUE_SIZE = 0xF          ; Must be X^2 - 1
+#define MAX_QUEUE_SIZE  0xF             ; Must be X^2 - 1
 
 ; Initialize queue
 

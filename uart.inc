@@ -11,35 +11,33 @@
     extern uart_clear_errors
 #endif
 
-    variable BAUD_RATE          = 115000    ; UART baud rate in bps
-    variable XON                = 17        ; start data flow
-    variable XOFF               = 19        ; stop data flow
+#define BAUD_RATE   115000              ; UART baud rate in bps
+#define XON         17                  ; start data flow
+#define XOFF        19                  ; stop data flow
 
 ; Setup UART
 
 init_uart macro
         local   BRG = ((CLOCK / BAUD_RATE) / BAUD_DIVIDER) - 1
-#if BRG > 0xFFFF
+
+#if BRG > MAX_WORD
         error "BRG overflow, over 16-bit"
 #endif
-        
 #ifdef NO_BRG16
-#if BRG > 0xFF
+    #if BRG > MAX_BYTE
         error "BRG overflow, over 8-bit"
-#endif
+    #endif
 #else
         inline  init_queue              ; init receive queue
 
         select  BAUDCTL
         bsf     BAUDCTL, BRG16
         
-        local   BRGH = BRG / 0x100
         select  SPBRGH
-        movlf   BRGH, SPBRGH
+        movlf   HIGH_BYTE (BRG), SPBRGH
 #endif
-        local   BRGL = BRG % 0x100
         select  SPBRG
-        movlf   BRGL, SPBRG
+        movlf   LOW_BYTE (BRG), SPBRG
         
         select  TXSTA
         movlf   B'00100100', TXSTA      ; BRGH: high speed
