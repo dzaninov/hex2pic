@@ -140,6 +140,11 @@ selecti macro   file                    ; set index bank only if needed
 #endif
         endm
 
+rselecti macro  file                    ; set index bank for relocatable
+        bankisel file
+        unbanki
+        endm
+
 ;===============================================================================
 ; Page switching
 

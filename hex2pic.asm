@@ -51,9 +51,7 @@ counter     res     1                   ; main local
         
         org 4
         inline  int_start
-        
-        farcall uart_get
-        
+        inline  uart_queue
         inline  int_end
         retfie
 

@@ -6,13 +6,23 @@
 
  global search_byte
  global checksum
+ global uart_q_buffer
+ global uart_q_start
+ global uart_q_free
+ global uart_q_size
+ global uart_q_data
  
                 udata
-search_byte     res         1               ; uart_find local
-high_nibble     res         1               ; uart_get_hex local
-hex_number      res         1               ; uart_send_hex local
-checksum        res         1               ; updated in uart_get_hex
-      
+search_byte     res         1                   ; uart_find local
+high_nibble     res         1                   ; uart_get_hex local
+hex_number      res         1                   ; uart_send_hex local
+checksum        res         1                   ; updated in uart_get_hex
+uart_q_buffer   res         UART_MAX_Q_SIZE     ; uart queue buffer
+uart_q_start    res         1                   ; start of the buffer
+uart_q_free     res         1                   ; last + 1
+uart_q_size     res         1                   ; data entries
+uart_q_data     res         1                   ; temporary storage
+
  code
 
 ; Get hex byte from UART to W and update checksum

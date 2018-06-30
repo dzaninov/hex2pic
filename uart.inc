@@ -11,12 +11,17 @@
     extern uart_clear_errors
     extern search_byte
     extern checksum
+    extern uart_q_buffer
+    extern uart_q_start
+    extern uart_q_free
+    extern uart_q_size
+    extern uart_q_data
 #endif
 
-    variable BAUD_RATE      = 115000    ; UART baud rate in bps
-    variable UART_BUF_SIZE  = 16        ; UART buffer size
-    variable XON            = 17        ; start data flow
-    variable XOFF           = 19        ; stop data flow
+    variable BAUD_RATE          = 115000    ; UART baud rate in bps
+    variable UART_MAX_Q_SIZE    = 0xF       ; Must be X^2 - 1
+    variable XON                = 17        ; start data flow
+    variable XOFF               = 19        ; stop data flow
 
 ; Setup UART
 
@@ -86,6 +91,32 @@ get_next:
         rselect search_byte
         xorwf   search_byte, f          ; search_byte ^= W
         bnz     get_next                ; no match -> get next
+        endm
+
+; Queue data from UART
+
+#define Q_MAX_SIZE  UART_MAX_Q_SIZE
+#define Q_BUFFER    uart_q_buffer
+#define Q_START     uart_q_start
+#define Q_FREE      uart_q_free
+#define Q_SIZE      uart_q_size
+#define Q_DATA      uart_q_data
+
+#include "queue.inc"
+
+uart_queue macro
+        local   check_uart
+        local   no_data
+
+check_uart:
+        select  PIR1
+        btfsc   PIR1, RCIF              ; UART buffer has data ?
+        goto    no_data
+
+        farcall uart_get
+        inline  enqueue
+        goto    check_uart              ; check if there is more data
+no_data:
         endm
 
 #endif
