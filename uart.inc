@@ -28,6 +28,8 @@ init_uart macro
         error "BRG overflow, over 8-bit"
 #endif
 #else
+        inline  init_queue              ; init receive queue
+
         select  BAUDCTL
         bsf     BAUDCTL, BRG16
         

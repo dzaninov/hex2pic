@@ -13,7 +13,7 @@ write_word macro
 #ifdef __16F887
         local   not_eeprom
         rselect high_address
-        skpeq   high_address, EEPROM_ADRH ; EPPROM address ?
+        skpeq   high_address, __EEPROM_ADRH     ; EPPROM address ?
         goto    not_eeprom
         
         select  EECON1
@@ -82,7 +82,7 @@ write_next_word:
 
         try     write_word
 
-        debug   WORD_WRITE
+        debug   SHOW_WRITE
         rselect words_to_write
         decfsz  words_to_write, f       ; --words_to_write == 0 ?
         goto    write_next_word         ; words_to_write != 0

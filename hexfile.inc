@@ -78,40 +78,32 @@ read_record_SUCCESS:
 ; Process data record
 ; throws write_word_ERROR
 
-#ifndef WRITE_PROTECT
-    variable WRITE_PROTECT = 0        
-#endif
-
-#if WRITE_PROTECT == 0
-    variable IGNORE_WRITE = 0
-#endif
-
 process_data_record macro
         local   write_record
         local   process_data_record_SUCCESS
-        
-#if WRITE_PROTECT != 0
         local   ignore_write
         
         rselect high_address
         tstf    high_address
         bz      write_record            ; high_address == 0
         
-        skpgt   low_address, WRITE_PROTECT
-        goto    ignore_write            ; ignore writes to protected area
-#endif
+        variable PROT_HIGH = (APP_START - 1) / 0x100
+        variable PROT_LOW = (APP_START - 1) % 0x100
+ 
+        skpgt   high_address, PROT_HIGH
+        goto    ignore_write            ; ignore writes to boot loader
+        
+        skpgt   low_address, PROT_LOW
+        goto    ignore_write            ; ignore writes to boot loader
 
 write_record:
         try     write_data
-
-#ifdef WRITE_PROTECT
         goto    process_data_record_SUCCESS
 
 ignore_write:
-        debug   IGNORE_WRITE
+        send    IGNORED_WRITE
  
 process_data_record_SUCCESS:
-#endif
         endm
 
 ; Process one hex file record
