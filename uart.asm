@@ -3,6 +3,7 @@
 #include "asm.inc"
 #include "uart.inc"
 #include "number.inc"
+#include "util.inc"
 
                 udata
 hex_number      res         1           ; uart_send_hex local

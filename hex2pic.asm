@@ -5,6 +5,7 @@
 #include "clock.inc"
 #include "uart.inc"
 #include "loader.inc"
+#include "util.inc"
 
  code                                   
         org 0                           ; Power on reset and reboot

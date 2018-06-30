@@ -211,9 +211,4 @@ retz    macro   state                   ; set Z to state and return
         return
         endm
 
-reboot  macro                           ; reboot pic
-        setpage 0
-        goto    0
-        endm
-
 #endif

@@ -2,6 +2,7 @@
 #define QUEUE_INC
 
 #include "asm.inc"
+#include "util.inc"
 
 #ifndef QUEUE_ASM
     extern dequeue

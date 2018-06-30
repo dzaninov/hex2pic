@@ -4,12 +4,12 @@
 #include "pic.inc"
 
 #ifndef INTERRUPT_ASM
-#ifndef HAVE_SHADOW
-    extern WREG_SHAD
-    extern STATUS_SHAD
-    extern PCLATH_SHAD
-    extern FSR_SHAD
-#endif
+    #ifndef HAVE_SHADOW
+        extern WREG_SHAD
+        extern STATUS_SHAD
+        extern PCLATH_SHAD
+        extern FSR_SHAD
+    #endif
 #endif
 
 ; Save registers
