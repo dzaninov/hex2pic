@@ -29,6 +29,7 @@
 
 #include "interrupt.inc"
 #include "clock.inc"
+#include "queue.inc"
 #include "uart.inc"
 #include "hexfile.inc"
 
@@ -61,6 +62,7 @@ counter     res     1                   ; main local
 main:
         unbank
         inline  set_intosc
+        inline  init_queue
         inline  init_uart
         debug   SHOW_PROMPT
 

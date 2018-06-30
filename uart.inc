@@ -2,24 +2,16 @@
 #define UART_INC
 
 #include "delay.inc"
+#include "queue.inc"
 
 #ifndef UART_ASM
-    extern uart_get_hex
     extern uart_send_hex
     extern uart_send
     extern uart_get
     extern uart_clear_errors
-    extern search_byte
-    extern checksum
-    extern uart_q_buffer
-    extern uart_q_start
-    extern uart_q_free
-    extern uart_q_size
-    extern uart_q_data
 #endif
 
     variable BAUD_RATE          = 115000    ; UART baud rate in bps
-    variable UART_MAX_Q_SIZE    = 0xF       ; Must be X^2 - 1
     variable XON                = 17        ; start data flow
     variable XOFF               = 19        ; stop data flow
 
@@ -77,32 +69,7 @@ debug   macro   letter
 #endif
         endm
 
-; Read from UART until W is found
-; locals: search_byte
-
-uart_find macro
-        local   get_next
-        
-        rselect search_byte
-get_next:
-        movwf   search_byte             ; search_byte = W
-        farcall uart_get                ; W = UART
-
-        rselect search_byte
-        xorwf   search_byte, f          ; search_byte ^= W
-        bnz     get_next                ; no match -> get next
-        endm
-
-; Queue data from UART
-
-#define Q_MAX_SIZE  UART_MAX_Q_SIZE
-#define Q_BUFFER    uart_q_buffer
-#define Q_START     uart_q_start
-#define Q_FREE      uart_q_free
-#define Q_SIZE      uart_q_size
-#define Q_DATA      uart_q_data
-
-#include "queue.inc"
+; Receive data from UART and queue it
 
 uart_queue macro
         local   check_uart

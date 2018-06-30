@@ -4,50 +4,22 @@
 #include "uart.inc"
 #include "number.inc"
 
- global search_byte
- global checksum
- global uart_q_buffer
- global uart_q_start
- global uart_q_free
- global uart_q_size
- global uart_q_data
- 
                 udata
-search_byte     res         1                   ; uart_find local
-high_nibble     res         1                   ; uart_get_hex local
-hex_number      res         1                   ; uart_send_hex local
-checksum        res         1                   ; updated in uart_get_hex
-uart_q_buffer   res         UART_MAX_Q_SIZE     ; uart queue buffer
-uart_q_start    res         1                   ; start of the buffer
-uart_q_free     res         1                   ; last + 1
-uart_q_size     res         1                   ; data entries
-uart_q_data     res         1                   ; temporary storage
+hex_number      res         1           ; uart_send_hex local
 
  code
 
-; Get hex byte from UART to W and update checksum
-; Z is set if checksum is 0
-; locals: high_nibble
+; Send W to UART
 
- routine uart_get_hex
-        ; get high nibble
-
-        lclcall uart_get                ; W = UART
-        farcall hex_to_number           ; W = hex_to_number (W)
-        rselect high_nibble
-        movwf   high_nibble             ; high_nibble = W
-        swapf   high_nibble, f          ; high_nibble <<= 4
-
-        ; get low nibble
-
-        lclcall uart_get                ; W = UART
-        farcall hex_to_number           ; W = hex_to_number (W)
-        rselect high_nibble
-        iorwf   high_nibble, w          ; W |= high_nibble
-
-        addwf   checksum, f             ; checksum += W
+ routine uart_send
+        select  PIR1
+        btfss   PIR1, TXIF              ; UART buffer is full ?
+        repeat
+        
+        select  TXREG
+        movwf   TXREG                   ; send
         return
- 
+
 ; Send W to UART as hex
 ; locals: hex_number
 
@@ -62,17 +34,6 @@ uart_q_data     res         1                   ; temporary storage
         movfw   hex_number              ; W = hex_number
         farcall number_to_hex           ; W = number_to_hex (hex_number)
         lclcall uart_send               ; send low nibble to UART
-        return
-
-; Send W to UART
-
- routine uart_send
-        select  PIR1
-        btfss   PIR1, TXIF              ; UART buffer is full ?
-        repeat
-        
-        select  TXREG
-        movwf   TXREG                   ; send
         return
 
 ; Get byte from UART to W

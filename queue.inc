@@ -1,12 +1,28 @@
 #ifndef QUEUE_INC
 #define QUEUE_INC
 
+#include "asm.inc"
+
+#ifndef QUEUE_ASM
+    extern dequeue
+    extern queue_get_hex
+    extern queue_buffer
+    extern queue_start
+    extern queue_free
+    extern queue_size
+    extern queue_data
+    extern search_byte
+    extern checksum
+#endif
+
+ variable MAX_QUEUE_SIZE = 0xF          ; Must be X^2 - 1
+
 ; Initialize queue
 
 init_queue macro
-        clrf    Q_START
-        clrf    Q_FREE
-        clrf    Q_SIZE
+        clrf    queue_start
+        clrf    queue_free
+        clrf    queue_size
         endm
 
 ; Queue data from W
@@ -14,51 +30,41 @@ init_queue macro
 enqueue macro
         local   no_overflow
         
-        rselect Q_DATA
-        movwf   Q_DATA              ; Q_DATA = W
+        rselect queue_data
+        movwf   queue_data              ; queue_data = W
         
-        incf    Q_SIZE, f           ; Q_SIZE++
-        movlw   Q_MAX_SIZE
-        andwf   Q_SIZE, f           ; Q_SIZE &= Q_MAX_SIZE
-        bnz     no_overflow         ; Q_SIZE != 0 ?
+        incf    queue_size, f           ; queue_size++
+        movlw   MAX_QUEUE_SIZE
+        andwf   queue_size, f           ; queue_size &= Q_MAX_SIZE
+        bnz     no_overflow             ; queue_size != 0 ?
         reboot
         
 no_overflow:
-        rselecti Q_BUFFER
-        rmovlf  Q_BUFFER, FSR       ; FSR = Q_BUFFER
-        movfw   Q_FREE
-        addwf   FSR, f              ; FSR += Q_FREE
-        movff   Q_DATA, INDF        ; *FSR = Q_DATA
+        rselecti queue_buffer
+        rmovlf  queue_buffer, FSR       ; FSR = queue_buffer
+        movfw   queue_free
+        addwf   FSR, f                  ; FSR += queue_free
+        movff   queue_data, INDF        ; *FSR = Q_DATA
         
-        incf    Q_FREE, f           ; Q_FREE++
-        movlw   Q_MAX_SIZE
-        andwf   Q_FREE, f           ; Q_FREE &= Q_MAX_SIZE, rollover Q_FREE
+        incf    queue_free, f           ; queue_free++
+        movlw   MAX_QUEUE_SIZE
+        andwf   queue_free, f           ; rollover queue_free
         endm
 
-; Dequeue into W
+; Read from queue until W is found
+; locals: search_byte
 
-dequeue macro
-        local   no_data
-        inline  disable_int         ; Disable interrupts
+queue_find macro
+        local   get_next
         
-        rselect Q_SIZE
-no_data:
-        testf   Q_SIZE              ; Q_SIZE == 0 ?
-        bz      no_data             ; Q_SIZE == 0
-        decf    Q_SIZE, f           ; Q_SIZE--
-        
-        rselecti Q_BUFFER
-        rmovlf  Q_BUFFER, FSR       ; FSR = Q_BUFFER
-        movfw   Q_START
-        addwf   FSR, f              ; FSR += Q_START
-        movff   INDF, Q_DATA        ; Q_DATA = *FSR
-        
-        incf    Q_START, f          ; Q_START++
-        movlw   Q_MAX_SIZE
-        andwf   Q_START, f          ; Q_START &= Q_MAX_SIZE, rollover Q_START
-        
-        movfw   Q_DATA
-        bsf     INTCON, GIE         ; Enable interrupts
+        rselect search_byte
+get_next:
+        movwf   search_byte             ; search_byte = W
+        farcall dequeue                 ; get data from queue
+
+        rselect search_byte
+        xorwf   search_byte, f          ; search_byte ^= W
+        bnz     get_next                ; no match -> get next
         endm
 
 #endif
