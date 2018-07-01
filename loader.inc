@@ -25,7 +25,7 @@
 ; Read hex file from UART and write it
 
 boot_loader macro
-        inline  init_uart
+        inline  uart_init
         send    LOADER_PROMPT
 
 next_record:

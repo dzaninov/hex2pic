@@ -6,6 +6,7 @@
 #include "uart.inc"
 #include "loader.inc"
 #include "util.inc"
+#include "test.inc"
 
  code                                   
         org 0                           ; Power on reset and reboot
@@ -23,7 +24,8 @@
 main:
         unbank
         inline  set_clock
-        inline  boot_loader
+        inline  echo_test
+;       inline  boot_loader
         reboot
         
         end

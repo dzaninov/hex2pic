@@ -11,13 +11,16 @@
     extern uart_clear_errors
 #endif
 
-#define BAUD_RATE   115000              ; UART baud rate in bps
-#define XON         17                  ; start data flow
-#define XOFF        19                  ; stop data flow
+#define BAUD_RATE       115000              ; UART baud rate in bps
+#define XON             17                  ; start data flow
+#define XOFF            19                  ; stop data flow
+#define uart_recv       dequeue
+#define uart_recv_hex   queue_get_hex
+#define uart_find       queue_find
 
 ; Setup UART
 
-init_uart macro
+uart_init macro
         local   BRG = ((CLOCK / BAUD_RATE) / BAUD_DIVIDER) - 1
 
 #if BRG > MAX_WORD

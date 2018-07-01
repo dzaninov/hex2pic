@@ -16,17 +16,17 @@
 
 #define MAX_RECORD  16                  ; max hex data record size
 
-; Read bytes_to_read bytes of data from queue to record_buffer
+; Read bytes_to_read bytes of data from UART to record_buffer
 ; and update checksum
 
-queue_read_hex_data macro
+read_hex_data macro
         local   get_more_data
         
         bankisel record_buffer
         rmovlf  record_buffer, FSR      ; FSR = record_buffer
 
 get_more_data:
-        farcall queue_get_hex           ; get data byte
+        farcall uart_recv_hex           ; get data byte
         movwf   INDF                    ; *FSR = W
         incf    FSR, f                  ; FSR++
         rselect bytes_to_read
@@ -41,9 +41,9 @@ read_record macro
         local   read_record_SUCCESS
         
         movlw   ':'
-        inline  queue_find              ; find start of the record
+        inline  uart_find               ; find start of the record
 
-        farcall queue_get_hex           ; get number of bytes in a record
+        farcall uart_recv_hex           ; get number of bytes in a record
         rselect checksum
         movwf   checksum                ; init checksum to record size
         rselect bytes_to_read
@@ -51,21 +51,21 @@ read_record macro
         movwf   words_to_write
         shr     words_to_write, f       ; bytes to words
 
-        farcall queue_get_hex           ; get target high byte
+        farcall uart_recv_hex           ; get target high byte
         rselect high_address
         movwf   high_address
 
-        farcall queue_get_hex           ; get target low byte
+        farcall uart_recv_hex           ; get target low byte
         rselect low_address
         movwf   low_address
 
-        farcall queue_get_hex           ; get record type
+        farcall uart_recv_hex           ; get record type
         rselect record_type
         movwf   record_type
 
-        inline  queue_read_hex_data     ; read whole record to record_buffer
+        inline  read_hex_data           ; read whole record to record_buffer
 
-        farcall queue_get_hex           ; get record checksum
+        farcall uart_recv_hex           ; get record checksum
         bz      read_record_SUCCESS     ; checksum == 0 is good checksum
 
         movlw   CKSUM_ERROR
