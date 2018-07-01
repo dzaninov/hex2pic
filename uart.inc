@@ -3,7 +3,7 @@
 
 #include "config.inc"
 #include "number.inc"
-#include "queue.inc"
+#include "fifo.inc"
 #include "delay.inc"
 
 #ifndef UART_ASM
@@ -19,9 +19,9 @@
 #define CR              '\r'                ; carriage return
 #define LF              '\n'                ; line feed
 
-#define uart_recv       dequeue
-#define uart_recv_hex   queue_get_hex
-#define uart_find       queue_find
+#define uart_recv       fifo_get
+#define uart_recv_hex   fifo_get_hex
+#define uart_find       fifo_find
 
 #ifdef NO_BRG16
     #define BAUD_DIVIDER    16
@@ -46,7 +46,7 @@ uart_init macro
         error "BRG overflow, over 8-bit"
     #endif
 #else
-        inline  init_queue              ; init receive queue
+        inline  init_fifo               ; init receive FIFO
 
         select  BAUDCTL
         bsf     BAUDCTL, BRG16
@@ -119,7 +119,7 @@ debugnl macro   send_it
 #endif
         endm
 
-; Receive data from UART and queue it
+; Receive data from UART and add it to FIFO
 
 uart_queue macro
         local   check_uart
@@ -131,7 +131,7 @@ check_uart:
         goto    no_data
 
         farcall uart_get
-        farcall enqueue
+        farcall fifo_add
         goto    check_uart              ; check if there is more data
 no_data:
         endm

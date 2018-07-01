@@ -32,7 +32,7 @@ get_more_data:
         goto    get_more_data           ; bytes_to_read != 0
         endm
 
-; Read record from queue
+; Read record from FIFO
 ; throws read_record_ERROR
 
 read_record macro
