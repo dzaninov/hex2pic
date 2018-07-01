@@ -1,8 +1,7 @@
 #ifndef QUEUE_INC
 #define QUEUE_INC
 
-#include "asm.inc"
-#include "util.inc"
+#include "config.inc"
 
 #ifndef QUEUE_ASM
     extern dequeue

@@ -1,8 +1,7 @@
 #define QUEUE_ASM
-#include "asm.inc"
+#include "queue.inc"
 #include "interrupt.inc"
 #include "number.inc"
-#include "queue.inc"
 
  global queue_buffer
  global queue_start

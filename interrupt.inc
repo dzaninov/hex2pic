@@ -1,7 +1,7 @@
 #ifndef INTERRUPT_INC
 #define INTERRUPT_INC
 
-#include "pic.inc"
+#include "config.inc"
 
 #ifndef INTERRUPT_ASM
     #ifndef HAVE_SHADOW

@@ -1,9 +1,7 @@
 #ifndef HEXFILE_INC
 #define HEXFILE_INC
 
-#include "asm.inc"
-#include "flash.inc"
-#include "queue.inc"
+#include "config.inc"
     
 #ifndef HEXFILE_ASM
     extern record_type

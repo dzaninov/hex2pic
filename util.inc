@@ -1,8 +1,7 @@
 #ifndef UTIL_INC
 #define UTIL_INC
 
-#include "asm.inc"
-#include "interrupt.inc"
+#include "config.inc"
 
 reboot  macro                           ; reboot pic
         inline  disable_int

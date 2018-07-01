@@ -1,6 +1,5 @@
 #define DELAY_ASM
 #include "delay.inc"
-#include "asm.inc"
 
  global inner_delay
  global outer_delay

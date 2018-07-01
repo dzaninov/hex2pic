@@ -1,6 +1,8 @@
 #ifndef DELAY_INC
 #define DELAY_INC
 
+#include "config.inc"
+
 #ifndef DELAY_ASM
     extern long_delay           ; long_delay (inner_delay, outer_delay)
     extern inner_delay

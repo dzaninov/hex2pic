@@ -1,7 +1,7 @@
 #ifndef FLASH_INC
 #define FLASH_INC
 
-#include "asm.inc"
+#include "config.inc"
 
 ; Write one word
 ; throws write_word_ERROR

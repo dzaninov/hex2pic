@@ -1,6 +1,5 @@
 #define INTERRUPT_ASM
 #include "interrupt.inc"
-#include "pic.inc"
 
 #ifndef HAVE_SHADOW
 

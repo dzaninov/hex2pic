@@ -1,3 +1,4 @@
+#define PIC_ASM
 #include "pic.inc"
 
 #ifdef __16F88

@@ -1,6 +1,5 @@
 #define NUMBER_ASM
 #include "number.inc"
-#include "asm.inc"
 
  code
         

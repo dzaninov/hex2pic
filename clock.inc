@@ -1,6 +1,8 @@
 #ifndef CLOCK_INC
 #define CLOCK_INC
 
+#include "config.inc"
+        
 ; Set internal oscilator frequency and use it
 
 set_clock macro

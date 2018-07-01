@@ -1,11 +1,8 @@
-#include "asm.inc"
-
-#define CLOCK   MAX_INT_CLOCK           ; clock speed in Hz
+#include "config.inc"
 #include "interrupt.inc"
-#include "clock.inc"
 #include "uart.inc"
-#include "loader.inc"
 #include "util.inc"
+#include "clock.inc"
 #include "test.inc"
 
  code                                   
@@ -24,8 +21,12 @@
 main:
         unbank
         inline  set_clock
+        
+;       inline  send_test
+;       inline  hex_test
         inline  echo_test
+        
 ;       inline  boot_loader
         reboot
         
-        end
+ end

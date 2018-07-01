@@ -1,7 +1,8 @@
 #ifndef PIC_INC
 #define PIC_INC
-
-#include "number.inc"
+    
+#define kHZ(x)  ((x) * 1000)
+#define MHZ(x)  (kHZ ((x) * 1000))
 
 ;===============================================================================
 ; PIC compatibility
@@ -10,14 +11,12 @@
 #ifdef __16F88
     #include "p16f88.inc"
     #define __16F88X
-    #define BAUD_DIVIDER    16
     #define NO_BRG16
 #endif
     
 #ifdef __16F887
     #include "p16f887.inc"
     #define __16F88X
-    #define BAUD_DIVIDER    64
 #endif
 
 #ifdef __16F88X
@@ -40,7 +39,6 @@
 
 #ifdef __16F18XXX
     #define MAX_INT_CLOCK   (MHZ (32))
-    #define BAUD_DIVIDER    64
     #ifndef __EEPROM_START
         #define __EEPROM_START  0xF000
     #endif

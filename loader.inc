@@ -1,7 +1,7 @@
 #ifndef LOADER_INC
 #define LOADER_INC
-
-#include "hexfile.inc"
+    
+#include "config.inc"
 
 ; configurable section
 

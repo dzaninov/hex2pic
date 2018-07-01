@@ -1,9 +1,5 @@
 #define UART_ASM
-#include "pic.inc"
-#include "asm.inc"
 #include "uart.inc"
-#include "number.inc"
-#include "util.inc"
 
                 udata
 hex_number      res         1           ; uart_send_hex local
@@ -45,7 +41,6 @@ hex_number      res         1           ; uart_send_hex local
         goto    no_oerr
         send    'o'
         lclcall uart_clear_errors
-        reboot
         
 no_oerr:
         mybank  RCSTA
@@ -53,7 +48,6 @@ no_oerr:
         goto    no_ferr
         send    'f'
         lclcall uart_clear_errors
-        reboot
 
 no_ferr:
         select  PIR1

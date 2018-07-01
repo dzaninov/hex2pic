@@ -1,8 +1,10 @@
 #ifndef UART_INC
 #define UART_INC
 
-#include "delay.inc"
+#include "config.inc"
+#include "number.inc"
 #include "queue.inc"
+#include "delay.inc"
 
 #ifndef UART_ASM
     extern uart_send_hex
@@ -18,11 +20,21 @@
 #define uart_recv_hex   queue_get_hex
 #define uart_find       queue_find
 
+#ifdef NO_BRG16
+    #define BAUD_DIVIDER    16
+#else
+    #define BAUD_DIVIDER    4
+#endif
+
+#ifndef CLOCK
+    error "CLOCK not defined"
+#endif
+
+#define BRG     (CLOCK / (BAUD_RATE * BAUD_DIVIDER)) - 1
+
 ; Setup UART
 
 uart_init macro
-        local   BRG = ((CLOCK / BAUD_RATE) / BAUD_DIVIDER) - 1
-
 #if BRG > MAX_WORD
         error "BRG overflow, over 16-bit"
 #endif
