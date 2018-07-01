@@ -2,18 +2,18 @@
 #define CLOCK_INC
 
 #include "config.inc"
-        
+
 ; Set internal oscilator frequency and use it
 
 set_clock macro
 #ifdef __16F887
         local   not_stable
-      
+
 #if CLOCK == 0
         error "Unknown clock frequency"
 #endif
         select  OSCCON
-        
+
 #if CLOCK == 8000000
         movlf   B'01110001', OSCCON
 #endif
@@ -47,7 +47,7 @@ not_stable:
         btfss   OSCCON, HTS             ; high frequency clock stable ?
 #endif
         goto    not_stable
-#endif        
+#endif
         endm
 
 #endif

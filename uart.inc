@@ -47,13 +47,13 @@ uart_init macro
 
         select  BAUDCTL
         bsf     BAUDCTL, BRG16
-        
+
         select  SPBRGH
         movlf   HIGH_BYTE (BRG), SPBRGH
 #endif
         select  SPBRG
         movlf   LOW_BYTE (BRG), SPBRG
-        
+
         select  TXSTA
         movlf   B'00100100', TXSTA      ; BRGH: high speed
                                         ; TXEN: enable transmitter on RC6
@@ -63,24 +63,40 @@ uart_init macro
         select  PIE1
         bsf     PIE1, RCIE              ; Enable UART receive interrupt
         bsf     INTCON, GIE             ; Enable interrupts
-        
+
         banksel delay_counter
         movlf   0xFF, delay_counter     ; let remote side detect start
-        inline  short_delay             ; of serial data sequence 
+        inline  short_delay             ; of serial data sequence
         endm
 
-; Send letter to UART
+; Send literal to UART
 
-send    macro   byte
-        movlw   byte
+send    macro   literal
+        movlw   literal
         farcall uart_send
         endm
 
-; Send debug letter to UART
+; Send file to UART as hex
 
-debug   macro   letter
-#if letter != 0
-        send    letter
+sendf   macro   file
+        rselect file
+        movfw   file
+        farcall uart_send
+        endm
+
+; Send file to UART as hex
+
+sendxf  macro   file
+        rselect file
+        movfw   file
+        farcall uart_send_hex
+        endm
+
+; Send non-zero literal to UART
+
+debug   macro   literal
+#if literal != 0
+        send    literal
 #endif
         endm
 
@@ -96,7 +112,7 @@ check_uart:
         goto    no_data
 
         farcall uart_get
-        inline  enqueue
+        farcall enqueue
         goto    check_uart              ; check if there is more data
 no_data:
         endm

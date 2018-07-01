@@ -12,7 +12,7 @@ hex_number      res         1           ; uart_send_hex local
         select  PIR1
         btfss   PIR1, TXIF              ; UART buffer is full ?
         repeat
-        
+
         select  TXREG
         movwf   TXREG                   ; send
         return
@@ -41,7 +41,7 @@ hex_number      res         1           ; uart_send_hex local
         goto    no_oerr
         send    'o'
         lclcall uart_clear_errors
-        
+
 no_oerr:
         mybank  RCSTA
         btfss   RCSTA, FERR             ; framing error ?

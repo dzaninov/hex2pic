@@ -7,7 +7,7 @@
  global record_buffer
  global bytes_to_read
  global words_to_write
-    
+
                 udata
 record_type     res         1           ; set in read_record
 low_address     res         1           ; low part of write address
@@ -17,4 +17,3 @@ bytes_to_read   res         1           ; used by read_hex_data
 words_to_write  res         1           ; used by write_data
 
     end
-   

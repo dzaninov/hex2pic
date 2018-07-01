@@ -2,7 +2,7 @@
 #define HEXFILE_INC
 
 #include "config.inc"
-    
+
 #ifndef HEXFILE_ASM
     extern record_type
     extern low_address
@@ -19,7 +19,7 @@
 
 read_hex_data macro
         local   get_more_data
-        
+
         bankisel record_buffer
         rmovlf  record_buffer, FSR      ; FSR = record_buffer
 
@@ -37,7 +37,7 @@ get_more_data:
 
 read_record macro
         local   read_record_SUCCESS
-        
+
         movlw   ':'
         inline  uart_find               ; find start of the record
 
@@ -80,17 +80,17 @@ process_data_record macro
         local   write_record
         local   process_data_record_SUCCESS
         local   ignore_write
-        
+
         rselect high_address
         tstf    high_address
         bz      write_record            ; high_address == 0
-        
+
         local   PROT_HIGH = HIGH_BYTE (APP_START - 1)
         local   PROT_LOW = LOW_BYTE (APP_START - 1)
- 
+
         skpgt   high_address, PROT_HIGH
         goto    ignore_write            ; ignore writes to boot loader
-        
+
         skpgt   low_address, PROT_LOW
         goto    ignore_write            ; ignore writes to boot loader
 
@@ -100,7 +100,7 @@ write_record:
 
 ignore_write:
         send    IGNORED_WRITE
- 
+
 process_data_record_SUCCESS:
         endm
 
@@ -117,7 +117,7 @@ process_record macro
         local   not_eof_record
         local   not_supported
         local   process_record_MORE_DATA
-        
+
         rselect record_type
         skpeq   record_type, RECORD_DATA
         goto    not_data_record

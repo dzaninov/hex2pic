@@ -24,8 +24,9 @@ main:
         
 ;       inline  send_test
 ;       inline  hex_test
-        inline  echo_test
-        
+;       inline  echo_test
+        inline  queue_test
+
 ;       inline  boot_loader
         reboot
         

@@ -1,6 +1,6 @@
 #ifndef LOADER_INC
 #define LOADER_INC
-    
+
 #include "config.inc"
 
 ; configurable section

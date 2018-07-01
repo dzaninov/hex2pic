@@ -2,7 +2,7 @@
 #include "test.inc"
 
  global test_data
-                
+
             udata
 test_data   res         1
 

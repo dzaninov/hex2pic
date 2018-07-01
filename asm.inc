@@ -15,7 +15,7 @@
 
 ;===============================================================================
 ; New instructions
-    
+
 repeat  macro                           ; repeat until done
         goto    $ - 1
         endm
@@ -81,50 +81,50 @@ skpgt   macro   file, literal           ; file > literal ?
 ;===============================================================================
 ; Bank switching
 
- variable ACTIVE_BANK = -1 
-    
+ variable ACTIVE_BANK = -1
+
 unbank  macro                           ; forget current bank
         variable ACTIVE_BANK = -1
         errorlevel +BANKING_ERROR
         endm
-        
+
 mybank  macro   file                    ; assume we are in this file bank
         variable ACTIVE_BANK = file / BANK_SIZE
         errorlevel -BANKING_ERROR
         endm
-        
+
 fselect macro   file                    ; switch file bank unconditionally
         banksel file
         mybank  file
         endm
-        
+
 select  macro   file                    ; switch file bank only if needed
-        local NEW_BANK = file / BANK_SIZE        
+        local NEW_BANK = file / BANK_SIZE
 #if NEW_BANK != ACTIVE_BANK
         fselect file
 #endif
         endm
-        
+
 rselect macro   file                    ; switch bank for relocatable
         banksel file
         unbank
         endm
-        
+
 ;===============================================================================
 ; FSR high bits switching
-        
- variable ACTIVE_BANKI = -1 
+
+ variable ACTIVE_BANKI = -1
 
 unbanki macro                           ; forget current index bank
         variable ACTIVE_BANKI = -1
         endm
-        
+
 mybanki macro   banki                   ; assume index bank is set to this
         variable ACTIVE_BANKI = banki
         endm
-        
+
 fselecti macro  file                    ; set index bank unconditionally
-        local   NEW_BANKI = file >> 8       
+        local   NEW_BANKI = file >> 8
 #ifdef HAVE_FSRH
         movlf   NEW_BANKI, FSRH
 #else
@@ -132,9 +132,9 @@ fselecti macro  file                    ; set index bank unconditionally
 #endif
         mybanki NEW_BANKI
         endm
-        
+
 selecti macro   file                    ; set index bank only if needed
-        local   NEW_BANKI = file >> 8        
+        local   NEW_BANKI = file >> 8
 #if NEW_BANKI != ACTIVE_BANKI
         fselecti file
 #endif
@@ -163,7 +163,7 @@ setrpage macro  label                   ; set code page for relocatable label
         pagesel label
 #endif
         endm
-    
+
 unpage  macro                           ; set code page to local
         local   local_label
         setrpage local_label
@@ -193,12 +193,12 @@ name
         unbank
         unbanki
         endm
-        
+
 lclcall macro   routine                 ; call routine in the same module
         call    routine
         unbank
         endm
-        
+
 farcall macro   routine                 ; call routine in another module
         setrpage routine
         call    routine

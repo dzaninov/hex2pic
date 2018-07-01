@@ -7,7 +7,7 @@
  global STATUS_SHAD
  global PCLATH_SHAD
  global FSR_SHAD
-                
+
 shared_data     udata_shr
 WREG_SHAD       res         1
 
@@ -19,4 +19,3 @@ FSR_SHAD        res         1
 #endif
 
  end
- 

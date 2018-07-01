@@ -15,7 +15,7 @@ write_word macro
         rselect high_address
         skpeq   high_address, __EEPROM_ADRH     ; EPPROM address ?
         goto    not_eeprom
-        
+
         select  EECON1
         bcf     EECON1, EEPGD           ; setup writing to EEPROM
         goto    load_data
@@ -52,7 +52,7 @@ write_word_SUCCESS:
 
 write_data macro
         local   write_next_word
-        
+
         bankisel record_buffer
         rmovlf  record_buffer, FSR      ; FSR = record_buffer
 
@@ -66,7 +66,7 @@ write_next_word:
         movfw   high_address
         select  EEADRH
         movwf   EEADRH                  ; EEADRH = high_address
-        
+
         rselect low_address
         incf    low_address, f          ; low_address++
         skpnc                           ; no low_address overflow ?

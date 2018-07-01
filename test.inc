@@ -47,4 +47,22 @@ get_next:
         goto    get_next
         endm
 
+; push data to queue and retrieve it
+
+queue_test macro
+        local   loop
+        inline  uart_init
+loop:
+        movlw   '1'
+        farcall enqueue
+        movlw   '2'
+        farcall enqueue
+        
+        farcall dequeue
+        farcall uart_send
+        farcall dequeue
+        farcall uart_send
+        goto    loop
+        endm
+
 #endif

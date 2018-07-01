@@ -48,7 +48,7 @@ context_restore macro
         swapf   WREG_SHAD, f        ; Swap WREG_SHAD nibbles and return
                                     ; value to WREG_SHAD
         swapf   WREG_SHAD, w        ; Swap WREG_SHAD to W to restore original
-                                    ; W value without affecting STATUS 
+                                    ; W value without affecting STATUS
 #endif
         endm
 
@@ -57,7 +57,7 @@ context_restore macro
 
 disable_int macro
         local   int_enabled
-        
+
 int_enabled:
         bcf     INTCON, GIE             ; disable interrupts
         btfsc   INTCON, GIE             ; interrupts disabled ?
@@ -76,5 +76,5 @@ int_start macro
 int_end macro
         inline  context_restore
         endm
-        
+
 #endif

@@ -4,12 +4,12 @@
  global inner_delay
  global outer_delay
  global delay_counter
-                
+
                 udata
 inner_delay     res         1           ; long_delay parameter
 outer_delay     res         1           ; long_delay parameter
 delay_counter   res         1           ; short_delay parameter
-   
+
  code
 
 ; Long delay

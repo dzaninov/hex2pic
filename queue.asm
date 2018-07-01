@@ -2,6 +2,8 @@
 #include "queue.inc"
 #include "interrupt.inc"
 #include "number.inc"
+#include "util.inc"
+#include "uart.inc"
 
  global queue_buffer
  global queue_start
@@ -22,7 +24,35 @@ checksum        res         1                   ; updated in queue_get_hex
 high_nibble     res         1                   ; queue_get_hex local
 
  code
- 
+
+ ; Queue data from W
+
+ routine enqueue
+        local   no_overflow
+        
+        rselect queue_data
+        movwf   queue_data              ; queue_data = W
+        
+        incf    queue_size, f           ; queue_size++
+        movlw   MAX_QUEUE_SIZE
+        andwf   queue_size, f           ; queue_size &= Q_MAX_SIZE
+        bnz     no_overflow             ; queue_size != 0 ?
+        reboot
+        
+no_overflow:
+        rselecti queue_buffer
+        rmovlf  queue_buffer, FSR       ; FSR = queue_buffer
+        movfw   queue_free
+        addwf   FSR, f                  ; FSR += queue_free
+        movff   queue_data, INDF        ; *FSR = Q_DATA
+        
+        incf    queue_free, f           ; queue_free++
+        movlw   MAX_QUEUE_SIZE
+        andwf   queue_free, f           ; rollover queue_free
+        
+        queue_debug 'i'
+        return
+
  ; Dequeue into W
 
  routine dequeue
@@ -45,6 +75,8 @@ no_data:
         movlw   MAX_QUEUE_SIZE
         andwf   queue_start, f          ; rollover queue_start
         
+        queue_debug 'o'
+
         movfw   queue_data
         bsf     INTCON, GIE             ; enable interrupts
         return

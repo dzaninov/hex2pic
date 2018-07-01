@@ -1,6 +1,6 @@
 #ifndef PIC_INC
 #define PIC_INC
-    
+
 #define kHZ(x)  ((x) * 1000)
 #define MHZ(x)  (kHZ ((x) * 1000))
 
@@ -13,7 +13,7 @@
     #define __16F88X
     #define NO_BRG16
 #endif
-    
+
 #ifdef __16F887
     #include "p16f887.inc"
     #define __16F88X
@@ -31,7 +31,7 @@
     #define __16F18XXX
     #define ONE_PAGE
 #endif
-    
+
 #ifdef __16F18346
     #include "p16f18346.inc"
     #define __16F18XXX

@@ -2,7 +2,7 @@
 #include "number.inc"
 
  code
-        
+
 ; Convert uppercase hex in W to number
 
  routine hex_to_number
@@ -21,6 +21,5 @@
         addlw   'A' - '0' - 10          ; letter
         addlw   '0' + 10                ; number
         return
-        
+
  end
-        
