@@ -16,6 +16,9 @@
 #define BAUD_RATE       115000              ; UART baud rate in bps
 #define XON             17                  ; start data flow
 #define XOFF            19                  ; stop data flow
+#define CR              '\r'                ; carriage return
+#define LF              '\n'                ; line feed
+
 #define uart_recv       dequeue
 #define uart_recv_hex   queue_get_hex
 #define uart_find       queue_find
@@ -60,10 +63,11 @@ uart_init macro
         select  RCSTA
         movlf   B'10010000', RCSTA      ; SPEN: serial port enable
                                         ; CREN: enable receiver on RC7
+#if UART_INT == 1
         select  PIE1
         bsf     PIE1, RCIE              ; Enable UART receive interrupt
         bsf     INTCON, GIE             ; Enable interrupts
-
+#endif
         banksel delay_counter
         movlf   0xFF, delay_counter     ; let remote side detect start
         inline  short_delay             ; of serial data sequence
@@ -74,6 +78,13 @@ uart_init macro
 send    macro   literal
         movlw   literal
         farcall uart_send
+        endm
+
+; Send newline to UART
+
+sendnl  macro
+        send    CR
+        send    LF
         endm
 
 ; Send file to UART as hex
@@ -97,6 +108,14 @@ sendxf  macro   file
 debug   macro   literal
 #if literal != 0
         send    literal
+#endif
+        endm
+
+; Conditionally send newline to UART
+
+debugnl macro   send_it
+#if send_it != 0
+        sendnl
 #endif
         endm
 

@@ -29,27 +29,27 @@ high_nibble     res         1                   ; queue_get_hex local
 
  routine enqueue
         local   no_overflow
-        
+
         rselect queue_data
         movwf   queue_data              ; queue_data = W
-        
+
         incf    queue_size, f           ; queue_size++
         movlw   MAX_QUEUE_SIZE
         andwf   queue_size, f           ; queue_size &= Q_MAX_SIZE
         bnz     no_overflow             ; queue_size != 0 ?
         reboot
-        
+
 no_overflow:
         rselecti queue_buffer
         rmovlf  queue_buffer, FSR       ; FSR = queue_buffer
         movfw   queue_free
         addwf   FSR, f                  ; FSR += queue_free
         movff   queue_data, INDF        ; *FSR = Q_DATA
-        
+
         incf    queue_free, f           ; queue_free++
         movlw   MAX_QUEUE_SIZE
         andwf   queue_free, f           ; rollover queue_free
-        
+
         queue_debug 'i'
         return
 
@@ -57,28 +57,31 @@ no_overflow:
 
  routine dequeue
         local   no_data
-        inline  disable_int             ; Disable interrupts
-        
+
         rselect queue_size
 no_data:
         tstf    queue_size              ; queue_size == 0 ?
         bz      no_data                 ; queue_size == 0
+
+        inline  disable_int             ; Disable interrupts
         decf    queue_size, f           ; queue_size--
-        
+
         rselecti queue_buffer
         rmovlf  queue_buffer, FSR       ; FSR = queue_buffer
         movfw   queue_start
         addwf   FSR, f                  ; FSR += queue_start
         movff   INDF, queue_data        ; queue_data = *FSR
-        
+
         incf    queue_start, f          ; queue_start++
         movlw   MAX_QUEUE_SIZE
         andwf   queue_start, f          ; rollover queue_start
-        
+
         queue_debug 'o'
 
         movfw   queue_data
+#if UART_INT == 1
         bsf     INTCON, GIE             ; enable interrupts
+#endif
         return
 
 ; Get hex byte from queue to W and update checksum

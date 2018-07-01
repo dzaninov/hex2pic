@@ -11,7 +11,7 @@
 
 send_test macro
         local   send_next
-        inline  uart_init
+        uart_init
         clrf    test_data
 send_next:
         rselect test_data
@@ -25,7 +25,7 @@ send_next:
 
 hex_test macro
         local   send_next
-        inline  uart_init
+        uart_init
         clrf    test_data
 send_next:
         rselect test_data
@@ -40,7 +40,7 @@ send_next:
 
 echo_test macro
         local   get_next
-        inline  uart_init
+        uart_init
 get_next:
         farcall uart_get
         farcall uart_send
@@ -51,17 +51,22 @@ get_next:
 
 queue_test macro
         local   loop
-        inline  uart_init
+        uart_init
 loop:
         movlw   '1'
         farcall enqueue
-        movlw   '2'
-        farcall enqueue
-        
+
+;        movlw   '2'
+;        farcall enqueue
+
+;        farcall dequeue
+;        farcall uart_send
+;        sendnl
+
         farcall dequeue
         farcall uart_send
-        farcall dequeue
-        farcall uart_send
+        sendnl
+
         goto    loop
         endm
 

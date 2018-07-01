@@ -22,6 +22,7 @@
 ; Initialize queue
 
 init_queue macro
+        rselect queue_start
         clrf    queue_start
         clrf    queue_free
         clrf    queue_size
@@ -56,6 +57,7 @@ queue_debug macro operation
         send    ':'
         sendxf  queue_free
         send    '>'
+        sendnl
 #endif
         endm
 

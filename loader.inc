@@ -2,6 +2,7 @@
 #define LOADER_INC
 
 #include "config.inc"
+#include "uart.inc"
 
 ; configurable section
 
@@ -15,17 +16,16 @@
 
 ; comment out a variable to disable debug
 
- variable CKSUM_MATCH = 0, SHOW_WRITE = 0, CR_END = 0, LF_END = 0
+ variable CKSUM_MATCH = 0, SHOW_WRITE = 0, NL_END = 0
 
  variable CKSUM_MATCH   = 'C'           ; show record checksum verified
  variable SHOW_WRITE    = 'W'           ; show each write
- variable CR_END        = '\r'          ; send CR at the end
- variable LF_END        = '\n'          ; send LF at the end
+ variable NL_END        = 1             ; send newline at the end
 
 ; Read hex file from UART and write it
 
 boot_loader macro
-        inline  uart_init
+        uart_init
         send    LOADER_PROMPT
 
 next_record:
@@ -41,8 +41,7 @@ next_record:
  catch  write_word_ERROR                ; from process_record
 
         farcall uart_send               ; send final status from W
-        debug   CR_END
-        debug   LF_END
+        debugnl NL_END
         endm
 
 #endif
