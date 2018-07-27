@@ -50,7 +50,7 @@ no_overflow:
         movlw   MAX_FIFO_SIZE
         andwf   fifo_free, f            ; rollover fifo_free
 
-        fifo_debug 'i'
+        fifo_debug 'A'
         return
 
  ; Get data from FIFO to W
@@ -76,7 +76,7 @@ no_data:
         movlw   MAX_FIFO_SIZE
         andwf   fifo_start, f           ; rollover fifo_start
 
-        fifo_debug 'o'
+        fifo_debug 'G'
 
         movfw   fifo_data
 #if UART_INT == 1

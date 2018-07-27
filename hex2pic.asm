@@ -22,10 +22,10 @@ main:
         unbank
         inline  set_clock
 
-;       inline  send_test
-;       inline  hex_test
-;       inline  echo_test
-        inline  fifo_test
+;       farcall send_test
+;       farcall hex_test
+;       farcall echo_test
+        farcall fifo_test
 
 ;       inline  boot_loader
         reboot

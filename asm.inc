@@ -69,13 +69,13 @@ skpeq   macro   file, literal           ; compare file with literal
 skplte  macro   file, literal           ; file <= literal ?
         movfw   file                    ; W = file
         sublw   literal                 ; W = literal - W
-        skpnc                           ; C = 0 ?
+        skpc                            ; W <= literal ?
         endm
 
 skpgt   macro   file, literal           ; file > literal ?
         movfw   file                    ; W = file
         sublw   literal                 ; W = literal - W
-        skpc                            ; C = 1 ?
+        skpnc                           ; W > literal ?
         endm
 
 ;===============================================================================
